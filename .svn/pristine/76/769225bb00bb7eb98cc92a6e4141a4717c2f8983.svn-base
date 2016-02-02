@@ -1,0 +1,1 @@
+* * * * * flock -n /tmp/3g4g.lock -c /usr/bin/auto_3g4g.sh

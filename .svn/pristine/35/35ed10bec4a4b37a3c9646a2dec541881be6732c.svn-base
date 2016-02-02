@@ -1,0 +1,44 @@
+Source-Makefile: package/feeds/packages/libwebsockets/Makefile
+Package: libwebsockets-openssl
+Version: 1.4-chrome43-firefox-36-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zlib +libopenssl
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Build-Variant: openssl
+Section: libs
+Category: Libraries
+Title: libwebsockets (OpenSSL)
+Maintainer: Karl Palsson <karlp@remake.is>
+Source: libwebsockets-1.4-chrome43-firefox-36.tar.xz
+License: LGPL-2.1+exception
+LicenseFiles: LICENSE
+Type: ipkg
+Feed: packages
+Description: libwebsockets (OpenSSL)
+https://libwebsockets.org
+Karl Palsson <karlp@remake.is>
+@@
+
+Package: libwebsockets-cyassl
+Version: 1.4-chrome43-firefox-36-1
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +zlib +libcyassl
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Build-Variant: cyassl
+Section: libs
+Category: Libraries
+Title: libwebsockets (CyaSSL)
+Maintainer: Karl Palsson <karlp@remake.is>
+Source: libwebsockets-1.4-chrome43-firefox-36.tar.xz
+License: LGPL-2.1+exception
+LicenseFiles: LICENSE
+Type: ipkg
+Feed: packages
+Description: libwebsockets (CyaSSL)
+https://libwebsockets.org
+Karl Palsson <karlp@remake.is>
+@@
+
+

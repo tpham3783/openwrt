@@ -1,0 +1,11 @@
+# This script enables autoconnect for 
+# Sierra Wireless MC7350
+
+# wait to make sure the modem is up
+sleep 10
+
+if [ -e /dev/qcqmi0 ] && [ -e /dev/qcqmi1 ]; then
+    /usr/bin/connectionmgrmipsel /usr/bin/slqssdk 0 a
+fi
+
+exit 0

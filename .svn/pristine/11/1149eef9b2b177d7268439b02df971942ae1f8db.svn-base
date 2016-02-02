@@ -1,0 +1,21 @@
+Source-Makefile: package/feeds/management/shflags/Makefile
+Package: shflags
+Version: 2012-06-11_r133-1.0.x
+Depends: +libc +SSP_SUPPORT:libssp +USE_GLIBC:librt +USE_GLIBC:libpthread +getopt
+Conflicts: 
+Menu-Depends: 
+Provides: 
+Section: libs
+Category: Libraries
+Title: shflags
+Maintainer: Luka Perkov <luka@openwrt.org>
+Source: shflags-2012-06-11_r133.tar.gz
+License: LGPL-2.1
+Type: ipkg
+Feed: management
+Description:  command-line flags module for Unix shell scripts
+http://code.google.com/p/shflags/
+Luka Perkov <luka@openwrt.org>
+@@
+
+

@@ -1,0 +1,53 @@
+Source-Makefile: target/linux/gemini/Makefile
+Target: gemini
+Target-Board: gemini
+Target-Name: Cortina Systems CS351x
+Target-Path: /home2/openwrt_tnk_20150709/trunk
+Target-Arch: arm
+Target-Arch-Packages: gemini
+Target-Features: gpio pci rtc squashfs usb
+Target-Depends: 
+Target-Optimization: -Os -pipe -march=armv4 -mtune=fa526
+CPU-Type: fa526
+Linux-Version: 3.18.17
+Linux-Release: 1
+Linux-Kernel-Arch: arm
+Target-Description:
+
+@@
+Default-Packages: base-files libc libgcc busybox dropbear mtd uci opkg netifd fstools dnsmasq iptables ip6tables ppp ppp-mod-pppoe kmod-nf-nathelper firewall odhcpd odhcp6c 
+Target: gemini/raidsonic
+Target-Board: gemini
+Target-Name: Raidsonic NAS42x0
+Target-Path: target/linux/gemini
+Target-Arch: arm
+Target-Arch-Packages: gemini
+Target-Features: gpio pci rtc squashfs usb
+Target-Depends: 
+Target-Optimization: -Os -pipe -march=armv4 -mtune=fa526
+CPU-Type: fa526
+Linux-Version: 3.18.17
+Linux-Release: 1
+Linux-Kernel-Arch: arm
+Target-Description:
+	Build firmware images for Raidsonic NAS4220.
+@@
+Default-Packages: base-files libc libgcc busybox dropbear mtd uci opkg netifd fstools dnsmasq iptables ip6tables ppp ppp-mod-pppoe kmod-nf-nathelper firewall odhcpd odhcp6c 
+Target: gemini/wiligear
+Target-Board: gemini
+Target-Name: Wiligear WBD-222/111
+Target-Path: target/linux/gemini
+Target-Arch: arm
+Target-Arch-Packages: gemini
+Target-Features: gpio pci rtc squashfs usb
+Target-Depends: 
+Target-Optimization: -Os -pipe -march=armv4 -mtune=fa526
+CPU-Type: fa526
+Linux-Version: 3.18.17
+Linux-Release: 1
+Linux-Kernel-Arch: arm
+Target-Description:
+	Build firmware images for Wiligear WBD-222 and WBD-111 boards.
+@@
+Default-Packages: base-files libc libgcc busybox dropbear mtd uci opkg netifd fstools dnsmasq iptables ip6tables ppp ppp-mod-pppoe kmod-nf-nathelper firewall odhcpd odhcp6c 
+

@@ -1,0 +1,8 @@
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+# The following line enables autoconnect for Sierra Wireless
+# MC7350 if it's not already enabled.
+/usr/bin/autoconnect.sh &
+
+exit 0
