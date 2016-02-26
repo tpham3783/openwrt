@@ -4,6 +4,10 @@
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
+# PS: Source code for package sierra_sdk is not included for two reasons:
+#     1.  I do not know the licensing agreement.
+#     2.  Makes it a little harder to track truck, would be better if
+#         we can fetch the source directly from sierra.
 
 include $(TOPDIR)/rules.mk
 
@@ -33,6 +37,8 @@ define Build/Prepare
 	cp -rf src/* $(PKG_BUILD_DIR)/
 endef
 
+# First stage installer installed it to tmp for dev purposes, now
+# do the real install
 define Package/sierra_sdk/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) ./files/autoreconnect.sh $(1)/usr/bin/
