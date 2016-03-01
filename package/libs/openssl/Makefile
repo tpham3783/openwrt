@@ -18,7 +18,8 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.openssl.org/source/ \
 	ftp://ftp.openssl.org/source/ \
 	ftp://ftp.funet.fi/pub/crypt/mirrors/ftp.openssl.org/source \
-	ftp://ftp.sunet.se/pub/security/tools/net/openssl/source/
+	ftp://ftp.sunet.se/pub/security/tools/net/openssl/source/ \
+	https://www.openssl.org/source/old/1.0.2/
 PKG_MD5SUM:=8c8d81a9ae7005276e486702edbcd4b6
 
 PKG_LICENSE:=OpenSSL
