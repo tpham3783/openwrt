@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ "mt7621.dtsi"
+#include "mt7621.dtsi"
 
 / {
 	compatible = "mediatek,mt7621-eval-board", "mediatek,mt7621-soc";
@@ -8,7 +8,7 @@
 
 	memory@0 {
 		device_type = "memory";
-		reg = <0x0 0x8000000>;
+		reg = <0x0 0x4000000>;
 	};
 
 	chosen {
@@ -22,7 +22,7 @@
 			m25p80@0 {
 				#address-cells = <1>;
 				#size-cells = <1>;
-				compatible = "mx25l6405d";
+				compatible = "jedec,spi-nor";
 				reg = <0 0>;
 				linux,modalias = "m25p80", "en25q64";
 				spi-max-frequency = <10000000>;
@@ -47,7 +47,7 @@
 
 				partition@50000 {
 					label = "firmware";
-					reg = <0x50000 0xfb0000>;
+					reg = <0x50000 0x7b0000>;
 				};
 			};
 		};
@@ -69,7 +69,7 @@
 			mt76@0,0 {
 				reg = <0x0000 0 0 0 0>;
 				device_type = "pci";
-				mediatek,mtd-eeprom = <&factory 0x8000>;
+				mediatek,mtd-eeprom = <&factory 0x0000>;
 				mediatek,2ghz = <0>;
 			};
 		};
@@ -78,21 +78,27 @@
 			mt76@1,0 {
 				reg = <0x0000 0 0 0 0>;
 				device_type = "pci";
-				mediatek,mtd-eeprom = <&factory 0x0000>;
+				mediatek,mtd-eeprom = <&factory 0x8000>;
 				mediatek,5ghz = <0>;
 			};
 		};
 	};
 
+	ethernet@1e100000 {
+		mtd-mac-address = <&factory 0x2e>;
+	};
+
 	gpio-leds {
 		compatible = "gpio-leds";
+
 		wifi {
-			label = "linksys:orange:wifi";
-			gpios = <&gpio0 0 1>;
+			label = "re6500:orange:wifi";
+			gpios = <&gpio0 0 0>;
 		};
+
 		power {
-			label = "linksys:white:power";
-			gpios = <&gpio0 9 1>;
+			label = "re6500:white:power";
+			gpios = <&gpio0 9 0>;
 		};
 	};
 
@@ -101,11 +107,13 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <20>;
+
 		wps {
 			label = "wps";
 			gpios = <&gpio0 10 1>;
 			linux,code = <0x211>;
 		};
+
 		reset {
 			label = "reset";
 			gpios = <&gpio0 11 0>;

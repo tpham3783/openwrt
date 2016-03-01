@@ -36,7 +36,7 @@
 #define WNR2200_GPIO_LED_LAN4_GREEN	16
 #define WNR2200_GPIO_LED_PWR_AMBER	21
 #define WNR2200_GPIO_LED_PWR_GREEN	22
-
+#define WNR2200_GPIO_USB_5V		4
 #define WNR2200_GPIO_USB_POWER		24
 
 #define WNR2200_KEYS_POLL_INTERVAL	20 /* msecs */
@@ -121,15 +121,16 @@ static void __init wnr2200_setup(void)
 	ath79_register_eth(1);
 
 	ath79_register_m25p80(NULL);
-	ap91_pci_init(art + WNR2200_PCIE_CALDATA_OFFSET, NULL);
+	ap91_pci_init(art + WNR2200_PCIE_CALDATA_OFFSET,
+		      art + WNR2200_MAC1_OFFSET);
 
 	ath79_register_leds_gpio(-1, ARRAY_SIZE(wnr2200_leds_gpio),
 					wnr2200_leds_gpio);
 
 	/* enable power for the USB port */
-	gpio_request_one(WNR2200_GPIO_USB_POWER,
-			GPIOF_OUT_INIT_HIGH | GPIOF_EXPORT_DIR_FIXED,
-			"USB power");
+	ap9x_pci_setup_wmac_gpio(0,
+		BIT(WNR2200_GPIO_USB_5V),
+		BIT(WNR2200_GPIO_USB_5V));
 
 	ath79_register_usb();
 }

@@ -7,10 +7,12 @@
 	palmbus@10000000 {
 		spi@b00 {
 			status = "okay";
+
 			m25p80@0 {
 				#address-cells = <1>;
 				#size-cells = <1>;
 				reg = <0 0>;
+				compatible = "jedec,spi-nor";
 				spi-max-frequency = <10000000>;
 
 				partition@0 {
@@ -49,7 +51,7 @@
 	};
 
 	esw@10110000 {
-		ralink,portmap = <0x3f>;
+		mediatek,portmap = <0x3f>;
 	};
 
 	ehci@101c0000 {
@@ -62,12 +64,14 @@
 
 	gpio-leds {
 		compatible = "gpio-leds";
+
 		ld1 {
-			label = "asiarf:green:ld1";
+			label = "awm002:green:ld1";
 			gpios = <&gpio0 0 1>;
 		};
+
 		ld2 {
-			label = "asiarf:green:ld2";
+			label = "awm002:green:ld2";
 			gpios = <&gpio0 1 1>;
 		};
 	};

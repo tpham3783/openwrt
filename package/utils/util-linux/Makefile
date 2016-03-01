@@ -37,7 +37,6 @@ endef
 
 CONFIGURE_ARGS += \
 	--disable-rpath \
-	--enable-new-mount	\
 	--disable-tls		\
 	--disable-sulogin	\
 	--without-python	\
@@ -136,6 +135,18 @@ endef
 define Package/agetty/description
  agetty opens a tty port, prompts for a login name and invokes the
  /bin/login command
+endef
+
+define Package/blkdiscard
+$(call Package/util-linux/Default)
+  TITLE:=discard sectors on a device
+  SUBMENU=disc
+endef
+
+define Package/blkdiscard/description
+ The blkdiscard is used to discard device sectors. This is useful for
+ solid-state drivers (SSDs) and thinly-provisioned storage. Unlike fstrim,
+ this command is used directly on the block device.
 endef
 
 define Package/blkid
@@ -303,6 +314,17 @@ define Package/namei/description
  files, directories, and so forth)
 endef
 
+define Package/prlimit
+$(call Package/util-linux/Default)
+  TITLE:=get and set process resource limits
+  DEPENDS:= +libsmartcols
+endef
+
+define Package/prlimit/description
+  Given a process id and one or more resources, prlimit tries to retrieve
+  and/or modify the limits.
+endef
+
 define Package/rename
 $(call Package/util-linux/Default)
   TITLE:=rename files
@@ -452,6 +474,11 @@ define Package/agetty/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/agetty $(1)/usr/sbin/
 endef
 
+define Package/blkdiscard/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/blkdiscard $(1)/usr/sbin/
+endef
+
 define Package/blkid/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/.libs/blkid $(1)/usr/sbin/
@@ -534,6 +561,11 @@ define Package/namei/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/namei $(1)/usr/bin/
 endef
 
+define Package/prlimit/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/.libs/prlimit $(1)/usr/bin/
+endef
+
 define Package/rename/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rename $(1)/usr/bin/
@@ -598,6 +630,7 @@ $(eval $(call BuildPackage,libmount))
 $(eval $(call BuildPackage,libsmartcols))
 $(eval $(call BuildPackage,libuuid))
 $(eval $(call BuildPackage,agetty))
+$(eval $(call BuildPackage,blkdiscard))
 $(eval $(call BuildPackage,blkid))
 $(eval $(call BuildPackage,cal))
 $(eval $(call BuildPackage,cfdisk))
@@ -614,6 +647,7 @@ $(eval $(call BuildPackage,lsblk))
 $(eval $(call BuildPackage,mcookie))
 $(eval $(call BuildPackage,mount-utils))
 $(eval $(call BuildPackage,namei))
+$(eval $(call BuildPackage,prlimit))
 $(eval $(call BuildPackage,rename))
 $(eval $(call BuildPackage,partx-utils))
 $(eval $(call BuildPackage,script-utils))

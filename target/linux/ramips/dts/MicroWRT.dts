@@ -25,7 +25,7 @@
 			m25p80@0 {
 				#address-cells = <1>;
 				#size-cells = <1>;
-				compatible = "w25q128";
+				compatible = "jedec,spi-nor";
 				reg = <0 0>;
 				linux,modalias = "m25p80", "w25q128";
 				spi-max-frequency = <10000000>;
@@ -72,7 +72,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&ephy_pins>;
 		mtd-mac-address = <&factory 0x4>;
-		ralink,port-map = "llllw";
+		mediatek,portmap = "llllw";
 	};
 
 	wmac@10180000 {
@@ -93,15 +93,17 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <20>;
+
 		reset {
 			label = "reset";
 			gpios = <&gpio0 1 1>;
 			linux,code = <0x198>;
 		};
+
 		wps {
 			label = "wps";
 			gpios = <&gpio0 2 1>;
 			linux,code = <0x211>;
 		};
 	};
-   };
+};

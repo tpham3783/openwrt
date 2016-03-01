@@ -1,4 +1,4 @@
-# 
+#
 # Copyright (C) 2006-2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -38,7 +38,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/sangam-atm/Default
   SUBMENU:=Network Devices
-  DEPENDS:=@TARGET_ar7_generic +kmod-atm @!LINUX_4_1
+  DEPENDS:=@TARGET_ar7_generic +kmod-atm
   TITLE:=AR7 ADSL driver
   FILES:=$(PKG_BUILD_DIR)/tiatm.ko
   AUTOLOAD:=$(call AutoLoad,50,tiatm)

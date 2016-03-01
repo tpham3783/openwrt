@@ -25,7 +25,7 @@
 			m25p80@0 {
 				#address-cells = <1>;
 				#size-cells = <1>;
-				compatible = "mx25l12805d";
+				compatible = "jedec,spi-nor";
 				reg = <0 0>;
 				linux,modalias = "m25p80";
 				spi-max-frequency = <10000000>;
@@ -71,7 +71,7 @@
 
 	ethernet@10100000 {
 		mtd-mac-address = <&factory 0x4>;
-		ralink,port-map = "wllll";
+		mediatek,portmap = "wllll";
 	};
 
 	wmac@10180000 {
@@ -89,12 +89,14 @@
 
 	gpio-leds {
 		compatible = "gpio-leds";
+
 		system {
-			label = "kingston:blue:system";
+			label = "mlwg2:blue:system";
 			gpios = <&gpio2 3 1>;
 		};
+
 		wifi {
-			label = "kingston:blue:wifi";
+			label = "mlwg2:blue:wifi";
 			gpios = <&gpio3 0 1>;
 		};
 	};
@@ -104,11 +106,13 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <20>;
+
 		reset {
 			label = "reset";
 			gpios = <&gpio0 1 1>;
 			linux,code = <0x198>;
 		};
+
 		system {
 			label = "system";
 			gpios = <&gpio0 2 1>;

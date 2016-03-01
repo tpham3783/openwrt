@@ -15,122 +15,90 @@ Signed-off-by: Mathieu Olivari <mathieu@codeaurora.org>
 
 --- a/arch/arm/boot/dts/qcom-ipq8064-ap148.dts
 +++ b/arch/arm/boot/dts/qcom-ipq8064-ap148.dts
-@@ -30,6 +30,22 @@
- 				bias-disable;
- 			};
- 
-+			pcie1_pins: pcie1_pinmux {
-+				mux {
-+					pins = "gpio3";
-+					drive-strength = <2>;
-+					bias-disable;
-+				};
-+			};
-+
-+			pcie2_pins: pcie2_pinmux {
-+				mux {
-+					pins = "gpio48";
-+					drive-strength = <2>;
-+					bias-disable;
-+				};
-+			};
-+
- 			spi_pins: spi_pins {
- 				mux {
- 					pins = "gpio18", "gpio19", "gpio21";
-@@ -133,5 +149,19 @@
+@@ -115,5 +115,15 @@
  		usb30@1 {
  			status = "ok";
  		};
 +
 +		pcie0: pci@1b500000 {
 +			status = "ok";
-+			reset-gpio = <&qcom_pinmux 3 0>;
-+			pinctrl-0 = <&pcie1_pins>;
-+			pinctrl-names = "default";
++			phy-tx0-term-offset = <7>;
 +		};
 +
 +		pcie1: pci@1b700000 {
 +			status = "ok";
-+			reset-gpio = <&qcom_pinmux 48 0>;
-+			pinctrl-0 = <&pcie2_pins>;
-+			pinctrl-names = "default";
++			phy-tx0-term-offset = <7>;
 +		};
  	};
  };
 --- a/arch/arm/boot/dts/qcom-ipq8064-db149.dts
 +++ b/arch/arm/boot/dts/qcom-ipq8064-db149.dts
-@@ -30,6 +30,30 @@
- 				bias-disable;
- 			};
- 
-+			pcie1_pins: pcie1_pinmux {
-+				mux {
-+					pins = "gpio3";
-+					drive-strength = <2>;
-+					bias-disable;
-+				};
-+			};
-+
-+			pcie2_pins: pcie2_pinmux {
-+				mux {
-+					pins = "gpio48";
-+					drive-strength = <2>;
-+					bias-disable;
-+				};
-+			};
-+
-+			pcie3_pins: pcie3_pinmux {
-+				mux {
-+					pins = "gpio63";
-+					drive-strength = <2>;
-+					bias-disable;
-+				};
-+			};
-+
- 			spi_pins: spi_pins {
- 				mux {
- 					pins = "gpio18", "gpio19", "gpio21";
-@@ -128,5 +152,26 @@
+@@ -128,5 +128,17 @@
  		usb30@1 {
  			status = "ok";
  		};
 +
 +		pcie0: pci@1b500000 {
 +			status = "ok";
-+			reset-gpio = <&qcom_pinmux 3 0>;
-+			pinctrl-0 = <&pcie1_pins>;
-+			pinctrl-names = "default";
 +		};
 +
 +		pcie1: pci@1b700000 {
 +			status = "ok";
-+			reset-gpio = <&qcom_pinmux 48 0>;
-+			pinctrl-0 = <&pcie2_pins>;
-+			pinctrl-names = "default";
 +		};
 +
 +		pcie2: pci@1b900000 {
 +			status = "ok";
-+			reset-gpio = <&qcom_pinmux 63 0>;
-+			pinctrl-0 = <&pcie3_pins>;
-+			pinctrl-names = "default";
 +		};
  	};
  };
 --- a/arch/arm/boot/dts/qcom-ipq8064.dtsi
 +++ b/arch/arm/boot/dts/qcom-ipq8064.dtsi
-@@ -3,6 +3,8 @@
+@@ -3,6 +3,9 @@
  #include "skeleton.dtsi"
  #include <dt-bindings/clock/qcom,gcc-ipq806x.h>
  #include <dt-bindings/soc/qcom,gsbi.h>
 +#include <dt-bindings/reset/qcom,gcc-ipq806x.h>
 +#include <dt-bindings/interrupt-controller/arm-gic.h>
++#include <dt-bindings/gpio/gpio.h>
  
  / {
  	model = "Qualcomm IPQ8064";
-@@ -306,6 +308,129 @@
- 			#reset-cells = <1>;
+@@ -83,6 +86,33 @@
+ 			interrupt-controller;
+ 			#interrupt-cells = <2>;
+ 			interrupts = <0 32 0x4>;
++
++			pcie0_pins: pcie0_pinmux {
++				mux {
++					pins = "gpio3";
++					function = "pcie1_rst";
++					drive-strength = <12>;
++					bias-disable;
++				};
++			};
++
++			pcie1_pins: pcie1_pinmux {
++				mux {
++					pins = "gpio48";
++					function = "pcie2_rst";
++					drive-strength = <12>;
++					bias-disable;
++				};
++			};
++
++			pcie2_pins: pcie2_pinmux {
++				mux {
++					pins = "gpio63";
++					function = "pcie3_rst";
++					drive-strength = <12>;
++					bias-disable;
++				};
++			};
+ 		};
+ 
+ 		intc: interrupt-controller@2000000 {
+@@ -311,6 +341,144 @@
+ 			reg = <0x01200600 0x100>;
  		};
  
 +		pcie0: pci@1b500000 {
@@ -147,8 +115,8 @@ Signed-off-by: Mathieu Olivari <mathieu@codeaurora.org>
 +			#address-cells = <3>;
 +			#size-cells = <2>;
 +
-+			ranges = <0x81000000 0 0	  0x0fe00000 0 0x00100000   /* downstream I/O */
-+				  0x82000000 0 0x00000000 0x08000000 0 0x07e00000>; /* non-prefetchable memory */
++			ranges = <0x81000000 0 0x0fe00000 0x0fe00000 0 0x00100000   /* downstream I/O */
++				  0x82000000 0 0x08000000 0x08000000 0 0x07e00000>; /* non-prefetchable memory */
 +
 +			interrupts = <GIC_SPI 35 IRQ_TYPE_NONE>;
 +			interrupt-names = "msi";
@@ -171,6 +139,11 @@ Signed-off-by: Mathieu Olivari <mathieu@codeaurora.org>
 +				 <&gcc PCIE_PHY_RESET>;
 +			reset-names = "axi", "ahb", "por", "pci", "phy";
 +
++			pinctrl-0 = <&pcie0_pins>;
++			pinctrl-names = "default";
++
++			perst-gpio = <&qcom_pinmux 3 GPIO_ACTIVE_LOW>;
++
 +			status = "disabled";
 +		};
 +
@@ -188,8 +161,8 @@ Signed-off-by: Mathieu Olivari <mathieu@codeaurora.org>
 +			#address-cells = <3>;
 +			#size-cells = <2>;
 +
-+			ranges = <0x81000000 0 0	  0x31e00000 0 0x00100000   /* downstream I/O */
-+				  0x82000000 0 0x00000000 0x2e000000 0 0x03e00000>; /* non-prefetchable memory */
++			ranges = <0x81000000 0 0x31e00000 0x31e00000 0 0x00100000   /* downstream I/O */
++				  0x82000000 0 0x2e000000 0x2e000000 0 0x03e00000>; /* non-prefetchable memory */
 +
 +			interrupts = <GIC_SPI 57 IRQ_TYPE_NONE>;
 +			interrupt-names = "msi";
@@ -212,6 +185,11 @@ Signed-off-by: Mathieu Olivari <mathieu@codeaurora.org>
 +				 <&gcc PCIE_1_PHY_RESET>;
 +			reset-names = "axi", "ahb", "por", "pci", "phy";
 +
++			pinctrl-0 = <&pcie1_pins>;
++			pinctrl-names = "default";
++
++			perst-gpio = <&qcom_pinmux 48 GPIO_ACTIVE_LOW>;
++
 +			status = "disabled";
 +		};
 +
@@ -229,8 +207,8 @@ Signed-off-by: Mathieu Olivari <mathieu@codeaurora.org>
 +			#address-cells = <3>;
 +			#size-cells = <2>;
 +
-+			ranges = <0x81000000 0 0	  0x35e00000 0 0x00100000   /* downstream I/O */
-+				  0x82000000 0 0x00000000 0x32000000 0 0x03e00000>; /* non-prefetchable memory */
++			ranges = <0x81000000 0 0x35e00000 0x35e00000 0 0x00100000   /* downstream I/O */
++				  0x82000000 0 0x32000000 0x32000000 0 0x03e00000>; /* non-prefetchable memory */
 +
 +			interrupts = <GIC_SPI 71 IRQ_TYPE_NONE>;
 +			interrupt-names = "msi";
@@ -253,16 +231,14 @@ Signed-off-by: Mathieu Olivari <mathieu@codeaurora.org>
 +				 <&gcc PCIE_2_PHY_RESET>;
 +			reset-names = "axi", "ahb", "por", "pci", "phy";
 +
++			pinctrl-0 = <&pcie2_pins>;
++			pinctrl-names = "default";
++
++			perst-gpio = <&qcom_pinmux 63 GPIO_ACTIVE_LOW>;
++
 +			status = "disabled";
 +		};
 +
  		hs_phy_1: phy@100f8800 {
  			compatible = "qcom,dwc3-hs-usb-phy";
  			reg = <0x100f8800 0x30>;
-@@ -389,6 +514,5 @@
- 				dr_mode = "host";
- 			};
- 		};
--
- 	};
- };

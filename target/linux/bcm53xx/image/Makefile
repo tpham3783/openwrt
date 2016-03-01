@@ -60,19 +60,31 @@ define Build/asus-trx
 	mv $@.new $@
 endef
 
-define Build/netgear-chk
-	$(STAGING_DIR_HOST)/bin/mkchkimg \
-		-o $@.new -k $@ -b $(BOARD_ID) -r $(REGION)
-	mv $@.new $@
+define Build/seama-nand
+	# Seama entity
+	$(STAGING_DIR_HOST)/bin/oseama \
+		entity $@.entity \
+		-m "dev=/dev/mtdblock/7" \
+		-m "type=firmware" \
+		-f $(word 1,$^) \
+		-b 0x400000 \
+		-f $(KDIR)/root-block-0x20000-min-0x800.ubi \
+		-f $(KDIR)/ubi_mark
+	# Seama container
+	$(STAGING_DIR_HOST)/bin/seama \
+		-s $@ \
+		-m "signature=$(SIGNATURE)" \
+		-i $@.entity
 endef
 
-DEVICE_VARS += DT PRODUCTID BOARD_ID REGION
+DEVICE_VARS += DT PRODUCTID SIGNATURE NETGEAR_BOARD_ID NETGEAR_REGION
 
 define Device/Default
   # .dtb files are prefixed by SoC type, e.g. bcm4708- which is not included in device/image names
   # extract the full dtb name based on the device info
   DT := $(patsubst %.dtb,%,$(notdir $(wildcard $(if $(IB),$(KDIR),$(DTS_DIR))/*-$(1).dtb)))
   KERNEL := kernel-bin | append-dtb | lzma-d16
+  KERNEL_DEPENDS = $$(wildcard $(KDIR)/$$(DT).dts)
   FILESYSTEMS := squashfs
   KERNEL_NAME := zImage
   IMAGE_NAME = $$(IMAGE_PREFIX)-$$(1).$$(2)
@@ -93,25 +105,58 @@ define AsusDevice
   TARGET_DEVICES += asus-$(1)
 endef
 
+define Device/linksys
+  IMAGES := trx
+  IMAGE/trx := trx-nand
+endef
+
+define LinksysDevice
+  define Device/linksys-$(1)
+	$$(Device/linksys)
+  endef
+  TARGET_DEVICES += linksys-$(1)
+endef
+
+define Device/dlink
+  IMAGES := bin
+  IMAGE/bin := seama-nand
+endef
+
+define DLinkDevice
+  define Device/dlink-$(1)
+	$$(Device/dlink)
+	SIGNATURE := $(2)
+  endef
+  TARGET_DEVICES += dlink-$(1)
+endef
+
 define Device/netgear
   IMAGES := chk
   IMAGE/chk := trx-nand | netgear-chk
-  REGION := 1
+  NETGEAR_REGION := 1
+endef
+
+define NetgearDevice
+  define Device/netgear-$(1)
+	$$(Device/netgear)
+	NETGEAR_BOARD_ID := $(2)
+  endef
+  TARGET_DEVICES += netgear-$(1)
 endef
 
 define Device/netgear-r6250
   $(Device/netgear)
-  BOARD_ID := U12H245T00_NETGEAR
+  NETGEAR_BOARD_ID := U12H245T00_NETGEAR
 endef
 
 define Device/netgear-r6300-v2
   $(Device/netgear)
-  BOARD_ID := U12H240T00_NETGEAR
+  NETGEAR_BOARD_ID := U12H240T00_NETGEAR
 endef
 
 define Device/netgear-r8000
   $(Device/netgear)
-  BOARD_ID := U12H315T00_NETGEAR
+  NETGEAR_BOARD_ID := U12H315T00_NETGEAR
 endef
 
 define Device/smartrg-sr400ac
@@ -129,5 +174,9 @@ $(eval $(call AsusDevice,rt-ac56u,RT-AC56U))
 $(eval $(call AsusDevice,rt-ac68u,RT-AC68U))
 $(eval $(call AsusDevice,rt-ac87u,RT-AC87U))
 $(eval $(call AsusDevice,rt-n18u,RT-N18U))
+$(eval $(call DLinkDevice,dir-885l,wrgac42_dlink.2015_dir885l))
+$(eval $(call LinksysDevice,ea6300-v1))
+$(eval $(call NetgearDevice,r7000,U12H270T00_NETGEAR))
+# $(eval $(call NetgearDevice,r8500,U12H334T00_NETGEAR))
 
 $(eval $(call BuildImage))

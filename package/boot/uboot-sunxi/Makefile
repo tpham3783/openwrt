@@ -1,22 +1,23 @@
 #
-# Copyright (C) 2013-2014 OpenWrt.org
+# Copyright (C) 2013-2016 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
 
 include $(TOPDIR)/rules.mk
+include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=u-boot
-PKG_VERSION:=2015.01
+PKG_VERSION:=2016.01
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:= \
 	http://mirror2.openwrt.org/sources \
 	ftp://ftp.denx.de/pub/u-boot
 
-PKG_MD5SUM:=7f08dc9e98a71652bd6968888ed6ec95
+PKG_MD5SUM:=7d4f65fd43d4d706f5c5650e020d899d
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_LICENSE:=GPL-2.0 GPL-2.0+
 PKG_LICENSE_FILES:=Licenses/README
@@ -65,6 +66,10 @@ define uboot/Cubietruck
   TITLE:=U-Boot for Cubietruck
 endef
 
+define uboot/Hummingbird_A31
+  TITLE:=U-Boot for the Hummingbird A31 board
+endef
+
 define uboot/Mele_M9
   TITLE:=U-Boot for the Mele M9 (A31)
 endef
@@ -85,6 +90,10 @@ define uboot/Lamobo_R1
   TITLE:=U-Boot for Lamobo R1
 endef
 
+define uboot/orangepi_plus
+  TITLE:=U-Boot for Orange Pi Plus (H3)
+endef
+
 UBOOTS:= \
 	A10-OLinuXino-Lime \
 	A13-OLinuXino \
@@ -95,11 +104,13 @@ UBOOTS:= \
 	Cubieboard \
 	Cubieboard2 \
 	Cubietruck \
+	Hummingbird_A31 \
 	Mele_M9 \
 	OLIMEX_A13_SOM \
 	Linksprite_pcDuino \
 	Linksprite_pcDuino3 \
 	Lamobo_R1 \
+	orangepi_plus
 
 define Package/uboot/template
 define Package/uboot-sunxi-$(1)
@@ -132,20 +143,21 @@ endef
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
-		CROSS_COMPILE=$(TARGET_CROSS)
+		CROSS_COMPILE=$(TARGET_CROSS) \
+		DTCDIR=$(LINUX_DIR)/scripts/dtc/
 endef
 
 define Package/uboot/install/default
-	$(INSTALL_DIR) $(BIN_DIR)/uboot-$(BOARD)-$(1)
 	$(CP) $(PKG_BUILD_DIR)/u-boot.bin \
-		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-u-boot.bin
+		$(KERNEL_BUILD_DIR)/uboot-$(BOARD)-$(1)-u-boot.bin
 	$(CP) $(PKG_BUILD_DIR)/spl/sunxi-spl.bin \
-		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-spl.bin
+		$(KERNEL_BUILD_DIR)/uboot-$(BOARD)-$(1)-spl.bin
 	$(CP) $(PKG_BUILD_DIR)/u-boot-sunxi-with-spl.bin \
-		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-u-boot-with-spl.bin
+		$(KERNEL_BUILD_DIR)/uboot-$(BOARD)-$(1)-u-boot-with-spl.bin
 	$(CP) uEnv.txt \
-		$(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-uEnv.txt
-	mkimage -C none -A arm -T script -d $(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-uEnv.txt $(BIN_DIR)/uboot-$(BOARD)-$(1)/openwrt-$(BOARD)-$(1)-boot.scr
+		$(KERNEL_BUILD_DIR)/uboot-$(BOARD)-$(1)-uEnv.txt
+	mkimage -C none -A arm -T script -d $(KERNEL_BUILD_DIR)/uboot-$(BOARD)-$(1)-uEnv.txt \
+		$(KERNEL_BUILD_DIR)/uboot-$(BOARD)-$(1)-boot.scr
 endef
 
 define Package/uboot/install/template

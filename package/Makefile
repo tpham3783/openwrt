@@ -91,7 +91,7 @@ PACKAGE_INSTALL_FILES:= \
 $(curdir)/cleanup: $(TMP_DIR)/.build
 	rm -rf $(STAGING_DIR_ROOT)
 
-$(curdir)/install: $(TMP_DIR)/.build
+$(curdir)/install: $(TMP_DIR)/.build $(curdir)/system/opkg/host/install
 	- find $(STAGING_DIR_ROOT) -type d | $(XARGS) chmod 0755
 	rm -rf $(TARGET_DIR)
 	[ -d $(TARGET_DIR)/tmp ] || mkdir -p $(TARGET_DIR)/tmp
@@ -117,6 +117,7 @@ $(curdir)/install: $(TMP_DIR)/.build
 			IPKG_INSTROOT=$(TARGET_DIR) $$(which bash) ./etc/rc.common $$script enable; \
 		done || true \
 	)
+	$(if $(SOURCE_DATE_EPOCH),sed -i "s/Installed-Time: .*/Installed-Time: $(SOURCE_DATE_EPOCH)/" $(TARGET_DIR)/usr/lib/opkg/status)
 	@-find $(TARGET_DIR) -name CVS   | $(XARGS) rm -rf
 	@-find $(TARGET_DIR) -name .svn  | $(XARGS) rm -rf
 	@-find $(TARGET_DIR) -name '.#*' | $(XARGS) rm -f
@@ -137,9 +138,9 @@ endif
 PACKAGE_SUBDIRS=.
 ifneq ($(CONFIG_PER_FEED_REPO),)
   ifneq ($(CONFIG_PER_FEED_REPO_ADD_DISABLED),)
-    PACKAGE_SUBDIRS=base $(FEEDS_AVAILABLE)
+    PACKAGE_SUBDIRS=base kernel $(FEEDS_AVAILABLE)
   else
-    PACKAGE_SUBDIRS=base $(FEEDS_ENABLED)
+    PACKAGE_SUBDIRS=base kernel $(FEEDS_ENABLED)
   endif
 endif
 
@@ -149,7 +150,7 @@ $(curdir)/index: FORCE
 		mkdir -p $(PACKAGE_DIR)/$$d; \
 		cd $(PACKAGE_DIR)/$$d || continue; \
 		$(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages && \
-			gzip -9c Packages > Packages.gz; \
+			gzip -9nc Packages > Packages.gz; \
 	); done
 ifdef CONFIG_SIGNED_PACKAGES
 	@echo Signing package index...

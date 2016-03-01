@@ -7,21 +7,13 @@
 	model = "Ralink MT7620a + MT7610e evaluation board";
 
 	palmbus@10000000 {
-                gpio0: gpio@600 {
-                        status = "okay";
-                };
-
-		gpio1: gpio@638 {
-			status = "okay";
-		};
-
 		spi@b00 {
 			status = "okay";
 
 			m25p80@0 {
 				#address-cells = <1>;
 				#size-cells = <1>;
-				compatible = "en25q64";
+				compatible = "jedec,spi-nor";
 				reg = <0 0>;
 				linux,modalias = "m25p80", "en25q64";
 				spi-max-frequency = <10000000>;
@@ -46,7 +38,7 @@
 
 				partition@50000 {
 					label = "firmware";
-					reg = <0x50000 0xfb0000>;
+					reg = <0x50000 0x7b0000>;
 				};
 			};
 		};
@@ -55,7 +47,7 @@
 	pinctrl {
 		state_default: pinctrl0 {
 			gpio {
-				ralink,group = "i2c", "uartf", "wdt", "spi refclk";
+				ralink,group = "i2c", "uartf";
 				ralink,function = "gpio";
 			};
 		};
@@ -63,17 +55,10 @@
 
 	ethernet@10100000 {
 		status = "okay";
-
 		pinctrl-names = "default";
 		pinctrl-0 = <&rgmii1_pins &rgmii2_pins &mdio_pins>;
+		mediatek,portmap = "llllw";
 
-		mtd-mac-address = <&factory 0x28>;
-
-		/* KenC, llllw means WAN on port4, and wllll means WAN on port0 */
-		ralink,port-map = "llllw";
-
-		/* KenC, to adjust the port4 as 10, 100, not GbE */
-		/*
 		port@4 {
 			status = "okay";
 			phy-mode = "rgmii";
@@ -81,21 +66,11 @@
 		};
 
 		port@5 {
-		
 			status = "okay";
 			phy-mode = "rgmii";
 			phy-handle = <&phy5>;
 		};
 
-		port@0 {
-
-                        status = "okay";
-                        phy-mode = "rgmii";
-                        phy-handle = <&phy0>;
-                };
-		*/		
-		
-		/*
 		mdio-bus {
 			status = "okay";
 
@@ -103,26 +78,16 @@
 				reg = <4>;
 				phy-mode = "rgmii";
 			};
-	
+
 			phy5: ethernet-phy@5 {
 				reg = <5>;
 				phy-mode = "rgmii";
 			};
-
-                        phy0: ethernet-phy@0 {
-                                reg = <0>;
-                                phy-mode = "rgmii";
-                        };
 		};
-		*/
-	};
-
-	wmac@10180000 {
-		ralink,mtd-eeprom = <&factory 0>;
 	};
 
 	gsw@10110000 {
-		ralink,port4 = "gmac";
+		mediatek,port4 = "gmac";
 	};
 
 	sdhci@10130000 {
@@ -133,30 +98,22 @@
 		status = "okay";
 	};
 
-	gpio-leds {
-	compatible = "gpio-leds";
-
-        	sys {
-	        label = "AP102B:blue:D6";
-        	gpios = <&gpio0 0 1>; 
-	        };
-
-	        rf {
-        	label = "AP102B:blue:D5";
-	        gpios = <&gpio1 15 1>;
-        	};
-	};
-
 	gpio-keys-polled {
-		compatible = "gpio-keys-polled";
+		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <20>;
 
-		reset {
-			label = "reset";
-			gpios = <&gpio0 17 1>;
-			linux,code = <0x198>;
+		s2 {
+			label = "S2";
+			gpios = <&gpio0 1 1>;
+			linux,code = <0x100>;
+		};
+
+		s3 {
+			label = "S3";
+			gpios = <&gpio0 2 1>;
+			linux,code = <0x101>;
 		};
 	};
 

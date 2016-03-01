@@ -25,9 +25,12 @@ $(eval $(call KernelPackage,aoe))
 define KernelPackage/ata-core
   SUBMENU:=$(BLOCK_MENU)
   TITLE:=Serial and Parallel ATA support
-  DEPENDS:=@PCI_SUPPORT +kmod-scsi-core
+  DEPENDS:=@PCI_SUPPORT||TARGET_sunxi +kmod-scsi-core
   KCONFIG:=CONFIG_ATA
   FILES:=$(LINUX_DIR)/drivers/ata/libata.ko
+ifneq ($(wildcard $(LINUX_DIR)/drivers/ata/libahci.ko),)
+  FILES+=$(LINUX_DIR)/drivers/ata/libahci.ko
+endif
 endef
 
 $(eval $(call KernelPackage,ata-core))
@@ -43,8 +46,7 @@ define KernelPackage/ata-ahci
   TITLE:=AHCI Serial ATA support
   KCONFIG:=CONFIG_SATA_AHCI
   FILES:= \
-    $(LINUX_DIR)/drivers/ata/ahci.ko \
-    $(LINUX_DIR)/drivers/ata/libahci.ko
+    $(LINUX_DIR)/drivers/ata/ahci.ko
   AUTOLOAD:=$(call AutoLoad,41,libahci ahci,1)
   $(call AddDepends/ata)
 endef
@@ -62,8 +64,8 @@ define KernelPackage/ata-ahci-platform
   FILES:= \
     $(LINUX_DIR)/drivers/ata/ahci_platform.ko \
     $(LINUX_DIR)/drivers/ata/libahci_platform.ko
-  AUTOLOAD:=$(call AutoLoad,40,libahci_platform ahci_platform,1)
-  $(call AddDepends/ata,@TARGET_ipq806x||TARGET_mvebu +kmod-ata-ahci)
+  AUTOLOAD:=$(call AutoLoad,40,libahci libahci_platform ahci_platform,1)
+  $(call AddDepends/ata,@TARGET_ipq806x||TARGET_mvebu||TARGET_sunxi)
 endef
 
 define KernelPackage/ata-ahci-platform/description
@@ -375,7 +377,7 @@ $(eval $(call KernelPackage,md-raid10))
 
 
 define KernelPackage/md-raid456
-$(call KernelPackage/md/Depends,+kmod-lib-raid6 +kmod-lib-xor)
+$(call KernelPackage/md/Depends,+kmod-lib-raid6 +kmod-lib-xor +LINUX_4_4:kmod-lib-crc32c)
   TITLE:=RAID Level 456 Driver
   KCONFIG:= \
        CONFIG_ASYNC_CORE \
@@ -652,3 +654,17 @@ define KernelPackage/scsi-cdrom
 endef
 
 $(eval $(call KernelPackage,scsi-cdrom))
+
+
+define KernelPackage/scsi-tape
+  SUBMENU:=$(BLOCK_MENU)
+  TITLE:=Kernel support for scsi tape drives
+  DEPENDS:=+kmod-scsi-core
+  KCONFIG:= \
+    CONFIG_CHR_DEV_ST
+  FILES:= \
+    $(LINUX_DIR)/drivers/scsi/st.ko
+  AUTOLOAD:=$(call AutoLoad,45,st)
+endef
+
+$(eval $(call KernelPackage,scsi-tape))
