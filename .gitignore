@@ -1,4 +1,5 @@
 *.o
+.svn
 .DS_Store
 .*.swp
 /env
