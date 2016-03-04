@@ -40,8 +40,10 @@ endef
 # First stage installer installed it to tmp for dev purposes, now
 # do the real install
 define Package/sierra_sdk/install
+	$(INSTALL_DIR) $(1)/sdk
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) ./files/autoreconnect.sh $(1)/usr/bin/
+	$(CP) ./files/.sdk_config $(1)/sdk
 	chmod ugo+x $(1)/usr/bin/autoreconnect.sh
 	if [ ! grep "autoreconnect" $(1)/etc/rc.local ]; then \
 		echo "/usr/bin/autoreconnect.sh" > $(1)/etc/rc.local; \
@@ -49,7 +51,7 @@ define Package/sierra_sdk/install
 	fi;
 	$(INSTALL_DIR) $(1)/sdk
 	$(INSTALL_DIR) /tmp/sdk
-	-$(INSTALL_BIN) /tmp/sdk/{connect*,slq*} $(1)/sdk/
+	-$(INSTALL_BIN) /tmp/sdk/{connect*,slq*,start_sdkmipsel} $(1)/sdk/
 endef
 
 $(eval $(call BuildPackage,sierra_sdk))
