@@ -1,0 +1,4 @@
+[submodule "package/utils/sierra_sdk/src"]
+	path = package/utils/sierra_sdk/src
+	url = https://github.com/connectedioinc/EMU-Router-OS-Driver-Source.git
+	branch = submodule/sierra/sdk-3.3.14
