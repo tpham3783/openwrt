@@ -1,0 +1,16 @@
+#!/bin/sh
+
+case "$1" in
+	list)
+		echo '{ "cio_upgrade": { "keep": true } }'
+	;;
+	call)
+		case "$2" in
+			cio_upgrade)
+				sysupgrade -v /tmp/firmware.bin
+				echo '{ "msg1": "here do sysupgrade" }'
+				reboot;
+			;;
+		esac
+	;;
+esac
