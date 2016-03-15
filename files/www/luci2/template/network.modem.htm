@@ -1,0 +1,54 @@
+
+<p>
+	<table style="width:auto">
+		<tr>
+			<td>
+				<span>AT command</span>
+			</td>
+			<td>
+				<input type="text" id="atcommand" class="form-control" />
+			</td>
+			<td>
+				<div class="input-group">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-primary" id="run"><%:Send%></button>
+					</div>
+				</div>
+			</td>
+		</tr>
+	</table>
+</p>
+
+<pre id="at_output" style="display:none"></pre>
+
+<p>
+	<table style="width:auto">
+		<tr>
+			<td>
+				<span>APN Change</span>
+			</td>
+			<td>
+				<input type="text" id="apn" class="form-control" />
+			</td>
+			<td>
+				<div class="input-group">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-primary" id="change"><%:Change%></button>
+					</div>
+				</div>
+			</td>
+		</tr>
+	</table>
+</p>
+
+<pre id="apn_output" style="display:none"></pre>
+
+
+<div id="modem_status_table"></div>
+
+<div class="input-group">
+	<div class="input-group-btn">
+		<button type="button" class="btn btn-primary" id="connect"><%:Connect%></button>
+		<button type="button" class="btn btn-primary" id="disconnect"><%:Disconnect%></button>
+	</div>
+</div>

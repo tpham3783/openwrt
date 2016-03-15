@@ -1,0 +1,25 @@
+#!/bin/sh
+
+case "$1" in
+	list)
+		echo '{ "connect": { "keep": true}, "disconnect" : {"keep": true } }'
+	;;
+	call)
+		case "$2" in
+			connect)
+				pid=$(cat /var/run/udhcpc-wwan0.pid)
+				kill $pid
+				uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
+				uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
+				udhcpc -i wwan0 -S -p /var/run/udhcpc-wwan0.pid
+				output="{\"stdout\":\"connect\"}"
+				echo $output
+			;;
+			disconnect)
+				uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
+				output="{\"stdout\":\"disconnect\"}"
+				echo $output
+			;;
+		esac
+	;;
+esac

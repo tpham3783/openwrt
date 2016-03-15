@@ -1,0 +1,22 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=98
+
+boot()
+{
+	module=$(uci get modem.@modem[0].module)
+	if [[ "$module" == "MC7350" ]]; then
+		exit 0
+	else
+		autoconnect=$(uci get modem.@modem[0].autoconnect)
+		if [[ "$autoconnect" == "1" ]]; then
+			uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
+			uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
+			udhcpc -i wwan0 -p /var/run/udhcpc-wwan0.pid
+		else
+			uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
+		fi
+	fi
+	
+}

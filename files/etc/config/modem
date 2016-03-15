@@ -1,0 +1,8 @@
+config modem
+	option autoconnect '1'
+	option mode 'Auto'
+	option detectMode ''
+	option rssi ''
+	option status ''
+	option module ''
+	option apn ''

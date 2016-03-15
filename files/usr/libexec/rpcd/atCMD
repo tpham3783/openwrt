@@ -1,0 +1,34 @@
+#!/bin/sh
+
+case "$1" in
+	list)
+		echo '{ "cmd": { "data": "command"}, "apnChange" : {"apn": "internet" } }'
+	;;
+	call)
+		case "$2" in
+			cmd)
+				# read the arguments
+				read input;
+
+				# return json object or an array
+				at=$(echo $input | sed 's/^.*\"data\"\:\"//g' | sed 's/ *\".*$//g')
+				result=$(at.sh $at)
+				output="{\"stdout\":\"$result\"}"
+				echo $output
+			;;
+			apnChange)
+				# return json object or an array
+				read input;
+				apn=$(echo $input | sed 's/^.*\"apn\"\:\"//g' | sed 's/ *\".*$//g')
+				result=$(at.sh AT+CGDCONT=1,\"IP\",\"$apn\")
+				output="{\"stdout\":\"$result\"}"
+				pid=$(cat /var/run/udhcpc-wwan0.pid)
+				kill $pid
+				uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
+				uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
+				udhcpc -i wwan0 -S -p /var/run/udhcpc-wwan0.pid
+				echo $output
+			;;
+		esac
+	;;
+esac
