@@ -4,7 +4,7 @@
 
 / {
 	compatible = "ralink,mt7620a-eval-board", "ralink,mt7620a-soc";
-	model = "Ralink MT7620a + MT7610e evaluation board";
+        model = "Ralink MT7620a + MT7530 evaluation board";
 
 	palmbus@10000000 {
                 gpio0: gpio@600 {
@@ -72,11 +72,12 @@
 		/* KenC, llllw means WAN on port4, and wllll means WAN on port0 */
 		ralink,port-map = "llllw";
 
-		/* KenC, to adjust the port4 as 10, 100, not GbE */
-		/*
+		/* Zoe, to adjust the port4 GbE */
+		
 		port@4 {
 			status = "okay";
 			phy-mode = "rgmii";
+                        ralink,fixed-link = <1000 1 1 1>;
 			phy-handle = <&phy4>;
 		};
 
@@ -84,18 +85,10 @@
 		
 			status = "okay";
 			phy-mode = "rgmii";
+                        ralink,fixed-link = <1000 1 1 1>;
 			phy-handle = <&phy5>;
 		};
-
-		port@0 {
-
-                        status = "okay";
-                        phy-mode = "rgmii";
-                        phy-handle = <&phy0>;
-                };
-		*/		
 		
-		/*
 		mdio-bus {
 			status = "okay";
 
@@ -108,13 +101,8 @@
 				reg = <5>;
 				phy-mode = "rgmii";
 			};
-
-                        phy0: ethernet-phy@0 {
-                                reg = <0>;
-                                phy-mode = "rgmii";
-                        };
 		};
-		*/
+		
 	};
 
 	wmac@10180000 {
@@ -123,6 +111,7 @@
 
 	gsw@10110000 {
 		ralink,port4 = "gmac";
+                mediatek,mt7530 = <1>;  /*zoe add for giga port*/  
 	};
 
 	sdhci@10130000 {
