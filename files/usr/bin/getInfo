@@ -13,7 +13,6 @@ do
 			uci set modem.@modem[0].status="Connected"
 		else
 			uci set modem.@modem[0].status="Disconnect"
-			continue
 		fi
 
 		mode=$(echo $result | sed 's/^.*System mode\: //g' | sed 's/ *\^IPS.*$//g')
@@ -34,7 +33,6 @@ do
 			uci set modem.@modem[0].status="Connected"
 		else
 			uci set modem.@modem[0].status="Disconnect"
-			continue
 		fi
 
 		mode=$(uqmi -d /dev/cdc-wdm0 --get-signal-info | grep type | awk '{print $2}' | sed -n '2p' | sed 's/ *",.*$//g' | sed 's/^.*"//g')
