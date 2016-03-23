@@ -36,6 +36,27 @@ L.ui.view.extend({
 		expect: { '': { code: -1 } }
 	}),
 
+	getAuto: L.rpc.declare({
+		object: 'uci',
+		method: 'get',
+		params: [ 'config' ],
+		expect: { '': { code: -1 } }
+	}),
+
+	setAuto: L.rpc.declare({
+		object: 'modem',
+		method: 'checkAuto',
+		params: [ 'keep' ],
+		expect: { '': { code: -1 } }
+	}),
+
+	setMode: L.rpc.declare({
+		object: 'modem',
+		method: 'changeMode',
+		params: [ 'mode' ],
+		expect: { '': { code: -1 } }
+	}),
+
 	renderContents: function() {
 		var self = this;
 		return $.when(
@@ -70,6 +91,16 @@ L.ui.view.extend({
 					document.getElementById("disconnect").disabled = true;
 				}
 
+				// if (result.values.cfg0203f7.autoconnect === "1"){
+				// 	document.getElementById("autoBox").checked = "checked";
+				// } 
+				// else
+				// {
+				// 	document.getElementById("autoBox").checked = "";
+				// }
+
+				// document.getElementById(result.values.cfg0203f7.mode).checked = "checked";
+
 			})
 		)
 	},
@@ -99,16 +130,18 @@ L.ui.view.extend({
 		$('#change').click(function() {
 			L.ui.loading(true);
 			self['runApn']($('#apn').val()).then(function(rv) {
-				$('#apn_output').empty().show();
-
-				if (rv.stdout)
-					$('#apn_output').text(rv.stdout);
-
-				if (rv.stderr)
-					$('#apn_output').append($('<span />').css('color', 'red').text(rv.stderr));
 
 				L.ui.loading(false);
 			});
+		});
+
+		$('#autoBox').click(function() {
+			L.ui.loading(true);
+			self['setAuto'](true).then(function(rv) {
+
+				L.ui.loading(false);
+			});
+
 		});
 
 		$('#connect').click(function() {
@@ -127,6 +160,43 @@ L.ui.view.extend({
 
 				L.ui.loading(false);
 			});
+		});
+
+		$('#Auto').click(function() {
+			L.ui.loading(true);
+			self['setMode']("Auto").then(function(rv) {
+
+				L.ui.loading(false);
+			});
+		});
+
+		$('#LTE').click(function() {
+			L.ui.loading(true);
+			self['setMode']("LTE").then(function(rv) {
+
+				L.ui.loading(false);
+			});
+		});
+
+		$('#3G').click(function() {
+			L.ui.loading(true);
+			self['setMode']("3G").then(function(rv) {
+
+				L.ui.loading(false);
+			});
+		});
+
+		self.getInfo('modem').then(function(result) {
+
+			if (result.values.cfg0203f7.autoconnect === "1"){
+				document.getElementById("autoBox").checked = "checked";
+			} 
+			else {
+				document.getElementById("autoBox").checked = "";
+			}
+
+			document.getElementById(result.values.cfg0203f7.mode).checked = "checked";
+
 		});
 	}
 });
