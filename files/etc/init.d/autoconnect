@@ -1,15 +1,24 @@
 #!/bin/sh /etc/rc.common
 # Copyright (C) 2006-2011 OpenWrt.org
 
-START=98
+START=97
 
 boot()
 {
+	mode=$(uci get modem.@modem[0].mode)
 	module=$(uci get modem.@modem[0].module)
 	if [[ "$module" == "MC7350" ]]; then
 		exit 0
 	else
 		autoconnect=$(uci get modem.@modem[0].autoconnect)
+		if [[ "$mode" == "Auto" ]]; then
+			uqmi -d /dev/cdc-wdm0 --set-network-modes all
+		elif [[ "$mode" == "LTE" ]]; then
+			uqmi -d /dev/cdc-wdm0 --set-network-modes lte
+		elif [[ "$mode" == "3G" ]]; then
+			uqmi -d /dev/cdc-wdm0 --set-network-modes umts
+		fi
+		
 		if [[ "$autoconnect" == "1" ]]; then
 			uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
 			uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
