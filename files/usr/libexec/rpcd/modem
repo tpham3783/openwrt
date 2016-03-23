@@ -2,22 +2,59 @@
 
 case "$1" in
 	list)
-		echo '{ "connect": { "keep": true}, "disconnect" : {"keep": true } }'
+		echo '{ "connect": { "keep": true}, "disconnect" : {"keep": true }, "checkAuto" : {"keep": true }, "changeMode" : {"mode": "Auto" }}'
 	;;
 	call)
 		case "$2" in
 			connect)
+				killall getInfo
 				pid=$(cat /var/run/udhcpc-wwan0.pid)
 				kill $pid
 				uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
 				uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
-				udhcpc -i wwan0 -S -p /var/run/udhcpc-wwan0.pid
+				/etc/init.d/getModemInfo boot
+				udhcpc -i wwan0 -S -p /var/run/udhcpc-wwan0.pid				
 				output="{\"stdout\":\"connect\"}"
 				echo $output
 			;;
 			disconnect)
+				killall getInfo
 				uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
+				/etc/init.d/getModemInfo boot
 				output="{\"stdout\":\"disconnect\"}"
+				echo $output
+			;;
+			checkAuto)
+				autoconnect=$(uci get modem.@modem[0].autoconnect) 
+				if [[ "$autoconnect" == "1" ]]; then
+					uci set modem.@modem[0].autoconnect=0
+				else
+					uci set modem.@modem[0].autoconnect=1
+				fi
+				uci commit
+				output="{\"stdout\":\"checkAuto\"}"
+				echo $output
+			;;
+			changeMode)
+				read input;
+				killall getInfo
+				uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
+				mode=$(echo $input | sed 's/^.*\"mode\"\:\"//g' | sed 's/ *\".*$//g')
+				if [[ "$mode" == "Auto" ]]; then
+					uqmi -d /dev/cdc-wdm0 --set-network-modes all
+				elif [[ "$mode" == "LTE" ]]; then
+					uqmi -d /dev/cdc-wdm0 --set-network-modes lte
+				elif [[ "$mode" == "3G" ]]; then
+					uqmi -d /dev/cdc-wdm0 --set-network-modes umts
+				fi
+				uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
+				/etc/init.d/getModemInfo boot
+				pid=$(cat /var/run/udhcpc-wwan0.pid)
+				kill $pid
+				udhcpc -i wwan0 -S -p /var/run/udhcpc-wwan0.pid
+				uci set modem.@modem[0].mode=$mode
+				uci commit
+				output="{\"stdout\":\"changeMode\"}"
 				echo $output
 			;;
 		esac

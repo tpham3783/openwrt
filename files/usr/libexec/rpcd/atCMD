@@ -9,24 +9,28 @@ case "$1" in
 			cmd)
 				# read the arguments
 				read input;
-
 				# return json object or an array
 				at=$(echo $input | sed 's/^.*\"data\"\:\"//g' | sed 's/ *\".*$//g')
-				result=$(at.sh $at)
+				result=$(at.sh $at | sed 's/\"/ /g')
 				output="{\"stdout\":\"$result\"}"
 				echo $output
 			;;
 			apnChange)
 				# return json object or an array
 				read input;
+				killall getInfo
 				apn=$(echo $input | sed 's/^.*\"apn\"\:\"//g' | sed 's/ *\".*$//g')
 				result=$(at.sh AT+CGDCONT=1,\"IP\",\"$apn\")
+				uci set modem.@modem[0].apn=$apn
+				uci commit
 				output="{\"stdout\":\"$result\"}"
 				pid=$(cat /var/run/udhcpc-wwan0.pid)
 				kill $pid
 				uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
 				uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
+				/etc/init.d/getModemInfo boot
 				udhcpc -i wwan0 -S -p /var/run/udhcpc-wwan0.pid
+				
 				echo $output
 			;;
 		esac
