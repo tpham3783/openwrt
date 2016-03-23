@@ -1,7 +1,10 @@
 #!/bin/sh
 
-apn=$(at.sh at+cgdcont? | sed -n '1p' | sed 's/"//g' | sed 's/,/ /g' | awk '{print $4}')
-uci set modem.@modem[0].apn=$apn
+apn=$(uci get modem.@modem[0].apn)
+if [[ -z "$apn" ]]; then
+	apn=$(at.sh at+cgdcont? | sed -n '1p' | sed 's/"//g' | sed 's/,/ /g' | awk '{print $4}')
+	uci set modem.@modem[0].apn=$apn
+fi
 
 while : 
 do
@@ -45,5 +48,6 @@ do
 		rssi=$(uqmi -d /dev/cdc-wdm0 --get-signal-info | grep rssi | awk '{print $2}' | sed -n '2p' | sed 's/ *,.*$//g')
 		uci set modem.@modem[0].rssi=$rssi
 	fi
+	uci commit
 	sleep 5
 done
