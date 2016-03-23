@@ -64,6 +64,11 @@ L.ui.view.extend({
 		method: 'reset_start'
 	}),
 
+	startReboot: L.rpc.declare({
+		object: 'luci2.system',
+		method: 'reboot'
+	}),
+
 	handleFlashUpload: function() {
 		var self = this;
 		L.ui.upload(
@@ -178,7 +183,9 @@ L.ui.view.extend({
 							.addClass('cbi-button')
 							.attr('type', 'button')
 							.attr('value', L.tr('Reboot system'))
-							.click(function() { alert('Reboot...'); })
+							.click(function() { alert('Reboot...');
+												self.startReboot();
+							 })
 					], {
 						style: 'close',
 						close: function() {
@@ -223,9 +230,9 @@ L.ui.view.extend({
 		L.ui.dialog(L.tr('Really reset all changes?'), L.tr('This will reset the system to its initial configuration, all changes made since the initial flash will be lost!'), {
 			style: 'confirm',
 			confirm: function() {
-				//self.startReset().then(function() {
-				//	L.ui.reconnect();
-				//});
+				self.startReset().then(function() {
+					L.ui.reconnect();
+				});
 
 				alert('Reset...');
 			}
