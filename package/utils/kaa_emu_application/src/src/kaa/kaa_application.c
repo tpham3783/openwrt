@@ -159,9 +159,9 @@ int main(/*int argc, char *argv[]*/)
     kaa_profile_t *profile = kaa_profile_device_profile_create();
 
 #ifdef EMULATOR
-    profile->device_version = kaa_string_move_create("'OpenWrt'_'v0.0.4'.2_'r21'_'ramips/mt7620'_'ER1000T-EU'", NULL);
+    profile->device_version = kaa_string_move_create("'OpenWrt'_'v0.0.4'.2_'r21'_'ramips/mt7620'_'Telit'", NULL);
     profile->device_id = kaa_string_move_create("111222333444555", NULL);
-    profile->device_type = kaa_string_move_create("ER1000T-EU", NULL);
+    profile->device_type = kaa_string_move_create("Telit", NULL);
 #else
     profile->device_version = kaa_string_move_create(get_device_details(&device_details), NULL);
     profile->device_id = kaa_string_move_create(get_device_imei(), NULL);

@@ -58,10 +58,10 @@ int manufacture_identification(char *status) {
 
     run_atcommand("AT+CGMI", response);
     if (strstr(response, "Telit")) {
-        strcpy(status, "ER1000T-EU");
+        strcpy(status, "Telit");
 
     } else if (strstr(response, "Sierra Wireless")) {
-        strcpy(status, "ER1000-VZ");
+        strcpy(status, "Sierra");
     } else if (strstr(response, "SIMCOM")) {
         strcpy(status, "SIMCom");
     } else if (strstr(response, "Qualcom")) {
