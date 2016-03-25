@@ -93,7 +93,7 @@ static void emu_device_add_log_record(void *context)
     }else if(strcmp(log_record_message,"Initiating_Reboot") == 0){
 
         dprint("Initiating Reboot\n");
-        //system("reboot");
+        system("reboot");
 
     }
 
@@ -116,6 +116,7 @@ void on_notification(void *context, uint64_t *topic_id, kaa_notification_t *noti
     
     dprint("Notification Id:%s; Command: %s\n",(char*)log_record_id,(char*)log_record_tag);
     
+    memset(log_record_message,'\0',sizeof(log_record_message));
     update_log = parse_notification(notification, log_record_message);
 }
 
@@ -159,7 +160,7 @@ int main(/*int argc, char *argv[]*/)
     kaa_profile_t *profile = kaa_profile_device_profile_create();
 
 #ifdef EMULATOR
-    profile->device_version = kaa_string_move_create("'OpenWrt'_'v0.0.4'.2_'r21'_'ramips/mt7620'_'Telit'", NULL);
+    profile->device_version = kaa_string_move_create("'OpenWrt'_'v0.0.4'.2_'r21'_'ramips/mt7620'_'TELIT'", NULL);
     profile->device_id = kaa_string_move_create("111222333444555", NULL);
     profile->device_type = kaa_string_move_create("Telit", NULL);
 #else

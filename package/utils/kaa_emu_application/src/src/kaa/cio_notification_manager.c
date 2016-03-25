@@ -68,10 +68,14 @@ int parse_notification(kaa_notification_t *notification, char* status)
         
         case GET_FIREWALL:
             dprint("Get Firewall Command Received\n");
+            read_firewall_settings((char *)status);
             break;
         
         case SET_FIREWALL:
             dprint("Set Firewall Command Received\n");
+            param1value = (kaa_string_t *)((kaa_notification_t *)notification)->value1->data;
+            param2value = (kaa_string_t *)((kaa_notification_t *)notification)->value2->data;
+            set_firewall_settings((char*)param1value,(char*)param2value,(char*)status);
             break;
             
         case PERFORM_REBOOT:
@@ -335,7 +339,7 @@ unsigned int read_firewall_settings(char *status)
     static char t_status[LOG_BUF_SZ] ={};
     unsigned char hostname_err = 0;
 #ifdef EMULATOR
-    snprintf(status,KAA_DEMO_LOG_BUF_SZ,"Success:Firewall_Settings:FFFF:Err_Code:0000:Hostname:CIO");
+    snprintf(status,LOG_BUF_SZ,"Success:Firewall_Settings:FFFF:Err_Code:0000:Hostname:CIO_EMULATOR");
     dprint("%s\n", status);
 #else
     if (!execute_system_command("uci get firewall.@rule[0].target","ACCEPT",t_status)){

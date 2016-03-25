@@ -264,7 +264,7 @@ int sys_upgrade(unsigned int operation)
         default: return 1;
     }
 
-    //system(cmd);
+    system(cmd);
     return 0;
 
 }
@@ -321,9 +321,9 @@ int factory_reset(void)
 
     memset(cmd,'\0',sizeof(cmd));
     sprintf(cmd,"firstboot -y");
-    //system(cmd);
+    system(cmd);
     sleep(SAFE_SLEEP_TIME_SEC);
     memset(cmd,'\0',sizeof(cmd));
     sprintf(cmd,"reboot -f");
-    //system(cmd);
+    system(cmd);
 }
