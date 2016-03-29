@@ -2,7 +2,7 @@
 
 case "$1" in
 	list)
-		echo '{ "connect": { "keep": true}, "disconnect" : {"keep": true }, "checkAuto" : {"keep": true }, "changeMode" : {"mode": "Auto" }}'
+		echo '{ "connect": { "keep": true}, "disconnect" : {"keep": true }, "checkAuto" : {"keep": true }, "changeMode" : {"mode": "Auto" },  "getStatus" : {"keep": true }}'
 	;;
 	call)
 		case "$2" in
@@ -55,6 +55,46 @@ case "$1" in
 				uci set modem.@modem[0].mode=$mode
 				uci commit
 				output="{\"stdout\":\"changeMode\"}"
+				echo $output
+			;;
+			getStatus)
+				module=$(uci get system.@system[0].hostname)
+				if [ "$module" == "ER1000-VZ" ]; then
+                			result=$(/usr/sbin/chat -V -t2 '' AT!GSTATUS? OK '' 2>&1 > /dev/ttyUSB2  < /dev/ttyUSB2)
+                			if ifconfig eth1 | grep "inet addr" &> /dev/null; then
+                        			status="Connected"
+                			else
+                        			status="Disconnect"
+                			fi
+
+                			mode=$(echo $result | sed 's/^.*System mode\: //g' | sed 's/ *\^IPS.*$//g')
+                			if [ "$mode" == "CDMA" ]; then
+                        			detectMode="3G"
+                			elif [ "$mode" == "LTE" ]; then
+                        			detectMode="LTE"
+                			else
+                        			detectMode=""
+                			fi
+
+                			rssi=$(echo $result | sed 's/^.*RSSI //g' | awk '{print$2}' | sed 's/ *\^I\^I.*$//g')
+        			else
+                			status=$(uqmi -d /dev/cdc-wdm0 --get-data-status | sed 's/\"//g')
+                			if [ "$status" == "connected" ]; then
+                        			status="Connected"
+                			else
+                        			status="Disconnect"
+                			fi
+
+					mode=$(uqmi -d /dev/cdc-wdm0 --get-signal-info | grep type | awk '{print $2}' | sed -n '2p' | sed 's/ *",.*$//g' | sed 's/^.*"//g')
+                			if [[ "$mode" == "lte" ]]; then
+                        			detectMode="LTE"
+                			else
+                        			detectMode="3G"
+                			fi
+
+                			rssi=$(uqmi -d /dev/cdc-wdm0 --get-signal-info | grep rssi | awk '{print $2}' | sed -n '2p' | sed 's/ *,.*$//g')
+				fi
+				output="{\"status\": \"$status\", \"mode\": \"$detectMode\", \"rssi\": \"$rssi\"}"
 				echo $output
 			;;
 		esac
