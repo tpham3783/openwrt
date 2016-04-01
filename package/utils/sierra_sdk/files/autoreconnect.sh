@@ -11,7 +11,13 @@ if lsusb | grep 1199; then
 
 	# Do not start AvageAgent, otherwise will crash connectionManager
 	export  AVA_PATH=NO_AVA 
-	/sdk/connectionmgrmipsel /sdk/slqssdk 0 a || /sdk/slqssdk 0 &
+	if [ -f /sdk/LTEConnect ]; then
+	   # Connection Manager w/ internal autoconnect enabled
+	   /sdk/LTEConnect /sdk/slqssdk 0
+	else
+	   # Default sample connection manager
+	   /sdk/connectionmgrmipsel /sdk/slqssdk 0 a || /sdk/slqssdk 0 &
+	fi
 else
 	# Telit module will auto connect via qmi kernel interface
 	echo -n "";
