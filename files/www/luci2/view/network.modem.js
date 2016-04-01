@@ -21,6 +21,13 @@ L.ui.view.extend({
 		params: [ 'config' ],
 		expect: { '': { code: -1 } }
 	}),
+    /* On demand method */
+    getStatus: L.rpc.declare({
+		object: 'modem',
+		method: 'getStatus',
+		params: [ 'keep' ],
+		expect: { '': { code: -1 } }
+	}),
 
 	modemConnect: L.rpc.declare({
 		object: 'modem',
@@ -56,11 +63,14 @@ L.ui.view.extend({
 		params: [ 'mode' ],
 		expect: { '': { code: -1 } }
 	}),
+    
+    
 
 	renderContents: function() {
 		var self = this;
+        
 		return $.when(
-			self.getInfo('modem').then(function(result) {
+			self.getStatus('modem').then(function(result) {
 				var sysinfoTable = new L.ui.grid({
 					caption: L.tr('Information'),
 					columns: [ {
@@ -70,18 +80,18 @@ L.ui.view.extend({
 						nowrap:   true
 					} ]
 				});
-
-				sysinfoTable.rows([
-					[ L.tr('Module'), result.values.cfg0203f7.module    ],
-					[ L.tr('Status'), result.values.cfg0203f7.status   ],
-					[ L.tr('Mode'), result.values.cfg0203f7.detectMode ],
-					[ L.tr('RSSI'), result.values.cfg0203f7.rssi        ],
-					[ L.tr('APN'), result.values.cfg0203f7.apn        ]
+                
+                                
+                sysinfoTable.rows([
+					[ L.tr('Module'), self.modemName   ],
+					[ L.tr('Status'), result.status   ],
+					[ L.tr('Mode'), result.mode ],
+					[ L.tr('RSSI'), result.rssi        ],
+					[ L.tr('APN'), self.apn        ]
 				]);
-
 				sysinfoTable.insertInto('#modem_status_table');
 
-				if (result.values.cfg0203f7.status === "Connected"){
+				if (result.status === "Connected"){
 					document.getElementById("connect").disabled = true;
 					document.getElementById("disconnect").disabled = false;
 				} 
@@ -104,11 +114,16 @@ L.ui.view.extend({
 			})
 		)
 	},
-
+    
 	execute: function() {
 		var self = this;
-
+        
+        /* Default values before ubus callback */
+        self.modemName = "Unknown"
+        self.apn = "Unknown";
+        
 		L.network.load().then(function() {
+            /* Schedule page reload */
 			self.repeat(self.renderContents, 5000);
         });
 
@@ -165,7 +180,6 @@ L.ui.view.extend({
 		$('#Auto').click(function() {
 			L.ui.loading(true);
 			self['setMode']("Auto").then(function(rv) {
-
 				L.ui.loading(false);
 			});
 		});
@@ -173,7 +187,6 @@ L.ui.view.extend({
 		$('#LTE').click(function() {
 			L.ui.loading(true);
 			self['setMode']("LTE").then(function(rv) {
-
 				L.ui.loading(false);
 			});
 		});
@@ -181,22 +194,26 @@ L.ui.view.extend({
 		$('#3G').click(function() {
 			L.ui.loading(true);
 			self['setMode']("3G").then(function(rv) {
-
 				L.ui.loading(false);
 			});
 		});
 
-		self.getInfo('modem').then(function(result) {
+        /* Retrieve Static Config on pageload */
+        self.getInfo("modem").then(function(r) {
+            /* Update the static APNs & modem name */
+            self.modemName = r.values.cfg0203f7.module;
+            self.apn = r.values.cfg0203f7.apn;
 
-			if (result.values.cfg0203f7.autoconnect === "1"){
-				document.getElementById("autoBox").checked = "checked";
-			} 
-			else {
-				document.getElementById("autoBox").checked = "";
-			}
+            /* Update the auto connect checkbox */
+            if (r.values.cfg0203f7.autoconnect === "1") {
+                document.getElementById("autoBox").checked = "checked";
+            } else {
+                document.getElementById("autoBox").checked = "";
+            }
 
-			document.getElementById(result.values.cfg0203f7.mode).checked = "checked";
+            /* Select Prefered Network Indicator */
+            document.getElementById(r.values.cfg0203f7.mode).checked = "checked";
+        });
 
-		});
 	}
 });
