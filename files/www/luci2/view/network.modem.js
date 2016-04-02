@@ -65,7 +65,6 @@ L.ui.view.extend({
 	}),
     
     
-
 	renderContents: function() {
 		var self = this;
         
@@ -115,12 +114,32 @@ L.ui.view.extend({
 		)
 	},
     
+    updateView: function() {
+	var self = this;
+        /* Retrieve Static Config on pageload */
+        self.getInfo("modem").then(function(r) {
+            /* Update the static APNs & modem name */
+            self.modemName = r.values.cfg0203f7.module;
+            self.apn = r.values.cfg0203f7.apn;
+
+            /* Update the auto connect checkbox */
+            if (r.values.cfg0203f7.autoconnect === "1") {
+                document.getElementById("autoBox").checked = "checked";
+            } else {
+                document.getElementById("autoBox").checked = "";
+            }
+
+            /* Select Prefered Network Indicator */
+            document.getElementById(r.values.cfg0203f7.mode).checked = "checked";
+        });
+    },
+    
 	execute: function() {
 		var self = this;
         
-        /* Default values before ubus callback */
-        self.modemName = "Unknown"
-        self.apn = "Unknown";
+        	/* Default values before ubus callback */
+        	self.modemName = "Unknown"
+        	self.apn = "Unknown";
         
 		L.network.load().then(function() {
             /* Schedule page reload */
@@ -145,9 +164,10 @@ L.ui.view.extend({
 		$('#change').click(function() {
 			L.ui.loading(true);
 			self['runApn']($('#apn').val()).then(function(rv) {
-
+                		self.updateView();
 				L.ui.loading(false);
 			});
+			$("#apn").val("");
 		});
 
 		$('#autoBox').click(function() {
@@ -198,22 +218,8 @@ L.ui.view.extend({
 			});
 		});
 
-        /* Retrieve Static Config on pageload */
-        self.getInfo("modem").then(function(r) {
-            /* Update the static APNs & modem name */
-            self.modemName = r.values.cfg0203f7.module;
-            self.apn = r.values.cfg0203f7.apn;
-
-            /* Update the auto connect checkbox */
-            if (r.values.cfg0203f7.autoconnect === "1") {
-                document.getElementById("autoBox").checked = "checked";
-            } else {
-                document.getElementById("autoBox").checked = "";
-            }
-
-            /* Select Prefered Network Indicator */
-            document.getElementById(r.values.cfg0203f7.mode).checked = "checked";
-        });
+		/* Trigger request for modem's name and APN */
+        	self.updateView();
 
 	}
 });
