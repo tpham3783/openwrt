@@ -7,20 +7,33 @@ case "$1" in
 	call)
 		case "$2" in
 			connect)
-				killall getInfo
-				pid=$(cat /var/run/udhcpc-wwan0.pid)
-				kill $pid
-				uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
-				uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
-				/etc/init.d/getModemInfo boot
-				udhcpc -i wwan0 -S -p /var/run/udhcpc-wwan0.pid				
+				module=$(uci get system.@system[0].hostname)
+                                if [ "$module" == "ER1000-VZ" ]; then
+					autoreconnect.sh
+					ifconfig eth1 up
+				else
+					killall getInfo
+					pid=$(cat /var/run/udhcpc-wwan0.pid)
+					kill $pid
+					uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
+					uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
+					/etc/init.d/getModemInfo boot
+					udhcpc -i wwan0 -S -p /var/run/udhcpc-wwan0.pid				
+				fi;
 				output="{\"stdout\":\"connect\"}"
 				echo $output
 			;;
 			disconnect)
-				killall getInfo
-				uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
-				/etc/init.d/getModemInfo boot
+				module=$(uci get system.@system[0].hostname)
+                                if [ "$module" == "ER1000-VZ" ]; then
+					killall LTEConnect 
+					killall slqssdk 
+					ifconfig eth1 down
+				else
+					killall getInfo
+					uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
+					/etc/init.d/getModemInfo boot
+				fi;
 				output="{\"stdout\":\"disconnect\"}"
 				echo $output
 			;;
