@@ -721,11 +721,11 @@
 			{
 				delete validation.message;
 
-				if ((val.length == 0 && !d.opt))
+				if ((val!=null && val.length == 0 && !d.opt))
 				{
 					rv = d.self.setError($elem, L.tr('Field must not be empty'));
 				}
-				else if (val.length > 0 && !vstack[0].apply(val, vstack[1]))
+				else if (val!=null && val.length > 0 && !vstack[0].apply(val, vstack[1]))
 				{
 					rv = d.self.setError($elem, validation.message, vstack[1]);
 				}
