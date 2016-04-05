@@ -110,7 +110,7 @@ L.ui.view.extend({
 								console.log(rcv);
 							});
 
-							alert('Flash...');
+							self.handleUpgrading();
 						}
 					}
 				);
@@ -135,6 +135,19 @@ L.ui.view.extend({
 				);
 			}
 		});
+	},
+
+	handleUpgrading: function() {
+		 L.ui.dialog(
+                      L.tr('Upgrading firmware'), [
+                      $('<p />').text(L.tr('Please wait while firmware is upgrading..'))
+                        ], {
+                            style: 'close',
+                            close: function() {
+					L.ui.dialog(false);
+				}}
+                            );
+
 	},
 
 	handleBackupUpload: function() {
