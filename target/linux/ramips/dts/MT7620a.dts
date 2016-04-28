@@ -46,7 +46,7 @@
 
 				partition@50000 {
 					label = "firmware";
-					reg = <0x50000 0xfb0000>;
+					reg = <0x50000 0x3fb0000>;     /*0x1fb0000 is 32MB flash size,0x3fb0000 is 64MB flash size*/
 				};
 			};
 		};
@@ -111,7 +111,7 @@
 
 	gsw@10110000 {
 		ralink,port4 = "gmac";
-                mediatek,mt7530 = <1>;  /*zoe add for giga port*/  
+                //mediatek,mt7530 = <1>;  /*zoe add for giga port*/  
 	};
 
 	sdhci@10130000 {

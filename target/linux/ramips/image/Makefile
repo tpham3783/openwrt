@@ -34,7 +34,7 @@ KERNEL_DTB = kernel-bin | patch-dtb | lzma
 define Device/Default
   KERNEL := $(KERNEL_DTB) | uImage lzma
   IMAGES := sysupgrade.bin
-  IMAGE_SIZE := $(ralink_default_fw_size_8M)
+  IMAGE_SIZE := $(ralink_default_fw_size_64M)
   IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE)
 endef
 
@@ -200,6 +200,15 @@ BuildFirmware/Tplink/initramfs=$(call BuildFirmware/OF/tplink/initramfs,$(1),$(2
 ralink_default_fw_size_16M=16121856
 BuildFirmware/Default16M/squashfs=$(call BuildFirmware/OF,$(1),$(2),$(3),$(ralink_default_fw_size_16M),$(4))
 BuildFirmware/Default16M/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3),$(4))
+
+ralink_default_fw_size_32M=32899072
+BuildFirmware/Default32M/squashfs=$(call BuildFirmware/OF,$(1),$(2),$(3),$(ralink_default_fw_size_32M),$(4)) 
+BuildFirmware/Default32M/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3),$(4)) 
+
+ralink_default_fw_size_64M=66453504
+BuildFirmware/Default64M/squashfs=$(call BuildFirmware/OF,$(1),$(2),$(3),$(ralink_default_fw_size_64M),$(4))
+BuildFirmware/Default64M/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3),$(4))
+
 
 # Build images for a custom sized flash layout
 # $(1) = squashfs/initramfs
@@ -848,7 +857,7 @@ endif
 #
 
 Image/Build/Profile/E1700=$(call BuildFirmware/UMedia/$(1),$(1),e1700,E1700,0x013326)
-Image/Build/Profile/MT7620a=$(call BuildFirmware/Default8M/$(1),$(1),mt7620a,MT7620a)
+Image/Build/Profile/MT7620a=$(call BuildFirmware/Default64M/$(1),$(1),mt7620a,MT7620a)
 Image/Build/Profile/MT7620a_MT7610e=$(call BuildFirmware/Default8M/$(1),$(1),mt7620a_mt7610e,MT7620a_MT7610e)
 Image/Build/Profile/MT7620a_MT7530=$(call BuildFirmware/Default8M/$(1),$(1),mt7620a_mt7530,MT7620a_MT7530)
 Image/Build/Profile/MT7620a_V22SG=$(call BuildFirmware/Default8M/$(1),$(1),mt7620a_v22sg,MT7620a_V22SG)
