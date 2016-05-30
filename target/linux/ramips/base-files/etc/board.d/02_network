@@ -33,7 +33,6 @@ ramips_setup_rt3x5x_vlans()
 ramips_setup_interfaces()
 {
 	local board="$1"
-
 	ucidef_set_interface_loopback
 
 	case $board in
@@ -371,7 +370,7 @@ ramips_setup_macs()
 	mt7620a_mt7530 |\
         mt7620a_mt7610e)
 		lan_mac=$(cat /sys/class/net/eth0/address)
-                wan_mac=$(macaddr_add "$lan_mac" 2)
+                wan_mac=$(macaddr_add "$lan_mac" 1) 
                 ;;
 	*)
 		lan_mac=$(cat /sys/class/net/eth0/address)
