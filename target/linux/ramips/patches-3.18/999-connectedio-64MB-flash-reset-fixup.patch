@@ -1,0 +1,43 @@
+--- a/drivers/mtd/devices/m25p80.c	2016-05-19 00:05:18.842911596 -0400
++++ b/drviers/mtd/devices/m25p80.c	2016-05-19 00:00:42.272244234 -0400
+@@ -319,6 +319,10 @@
+ {
+ 	struct m25p	*flash = spi_get_drvdata(spi);
+ 
++	// zoe: add spi flash reset code
++	flash->command[0] = 0xe9;
++        spi_write(flash->spi, flash->command, 1);
++
+ 	/* Clean up MTD stuff. */
+ 	return mtd_device_unregister(&flash->mtd);
+ }
+@@ -341,8 +345,8 @@
+ 	{"160s33b"},	{"320s33b"},	{"640s33b"},
+ 	{"mx25l2005a"},	{"mx25l4005a"},	{"mx25l8005"},	{"mx25l1606e"},
+ 	{"mx25l3205d"},	{"mx25l3255e"},	{"mx25l6405d"},	{"mx25l12805d"},
+-	{"mx25l12855e"},{"mx25l25635e"},{"mx25l25655e"},{"mx66l51235l"},
+-	{"mx66l1g55g"},
++	{"mx25l12855e"},{"mx25l25635e"},{"mx25l25655e"},/*{"mx66l51235l"},*/
++	{"mx66l51235f"},{"mx66l1g55g"},
+ 	{"n25q064"},	{"n25q128a11"},	{"n25q128a13"},	{"n25q256a"},
+ 	{"n25q512a"},	{"n25q512ax3"},	{"n25q00"},
+ 	{"pm25lv512"},	{"pm25lv010"},	{"pm25lq032"},
+@@ -350,7 +354,7 @@
+ 	{"s25fl512s"},	{"s70fl01gs"},	{"s25sl12800"},	{"s25sl12801"},
+ 	{"s25fl129p0"},	{"s25fl129p1"},	{"s25sl004a"},	{"s25sl008a"},
+ 	{"s25sl016a"},	{"s25sl032a"},	{"s25sl064a"},	{"s25fl008k"},
+-	{"s25fl016k"},	{"s25fl064k"},
++	{"s25fl016k"},	/*{"s25fl064k"},*/
+ 	{"sst25vf040b"},{"sst25vf080b"},{"sst25vf016b"},{"sst25vf032b"},
+ 	{"sst25vf064c"},{"sst25wf512"},	{"sst25wf010"},	{"sst25wf020"},
+ 	{"sst25wf040"},
+@@ -383,6 +387,9 @@
+ 	.probe	= m25p_probe,
+ 	.remove	= m25p_remove,
+ 
++	// zoe, add shutdown method to reset spi flash
++        .shutdown = m25p_remove,
++
+ 	/* REVISIT: many of these chips have deep power-down modes, which
+ 	 * should clearly be entered on suspend() to minimize power use.
+ 	 * And also when they're otherwise idle...
