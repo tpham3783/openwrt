@@ -41,6 +41,12 @@
         "view": "network/diagnostics",
         "index": 80
     },
+    "network/firewall": {
+        "title": "Firewall",
+        "acls": [ "network" ],
+        "view": "network/firewall",
+        "index": 85
+    },
     "network/modem": {
         "title": "Modem",
         "acls": [ "modem" ],
