@@ -1,8 +1,12 @@
 #!/bin/sh
+. /usr/share/libubox/jshn.sh
+
+
+
 
 case "$1" in
 	list)
-		echo '{ "cio_upgrade": { "keep": true } }'
+		echo '{ "cio_upgrade": { "keep": true }, "show_firewall": { "keep": true }, "restart_firewall": { "keep": true }, "reset_counts": { "keep": true }, "get_user_firewall": {}, "set_user_firewall": { "file":"" } }'
 	;;
 	call)
 		case "$2" in
@@ -10,6 +14,32 @@ case "$1" in
 				sysupgrade -v /tmp/firmware.bin
 				echo '{ "msg1": "here do sysupgrade" }'
 				reboot;
+			;;
+			show_firewall)
+				local oip4=$(iptables -vnL --line-numbers)
+				local oip6=$(ip6tables -vnL --line-numbers)
+				echo "{ \"ipv4\": \"$oip4\", \"ipv6\": \"$oip6\" }"
+			;;
+			reset_counts)
+				local s = $(iptables -Z)
+				local i = $(ip6tables -Z)
+				echo "{ \"status\": \"0\" }"
+			;;
+			restart_firewall)
+				s = $(/etc/init.d/firewall restart 2>&1)
+				echo "{ \"status\": \"$s\" }"
+			;;
+			get_user_firewall)
+				s=$(cat /etc/firewall.user);
+				echo "{ \"status\": \"0\", \"file\": \"$s\" }"
+			;;
+			set_user_firewall)
+				set -f	
+				read input;
+                                file="${input#*:\"}"
+				file="${file%\",\"*}"
+				echo "$file" | sed -e "s/_EOL_/\\n/g" > /etc/firewall.user 
+				echo "{ \"status\": \"$file\" }"
 			;;
 		esac
 	;;
