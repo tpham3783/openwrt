@@ -72,35 +72,41 @@
 		/* KenC, llllw means WAN on port4, and wllll means WAN on port0 */
 		ralink,port-map = "llllw";
 
-		/* Zoe, to adjust the port4 GbE */
-		
-		port@4 {
-			status = "okay";
-			phy-mode = "rgmii";
-                        ralink,fixed-link = <1000 1 1 1>;
-			phy-handle = <&phy4>;
-		};
 
 		port@5 {
-		
 			status = "okay";
 			phy-mode = "rgmii";
                         ralink,fixed-link = <1000 1 1 1>;
-			phy-handle = <&phy5>;
+			//phy-handle = <&phy5>;
 		};
 		
 		mdio-bus {
 			status = "okay";
 
-			phy4: ethernet-phy@4 {
-				reg = <4>;
-				phy-mode = "rgmii";
-			};
-	
-			phy5: ethernet-phy@5 {
-				reg = <5>;
-				phy-mode = "rgmii";
-			};
+			phy0: ethernet-phy@0 {
+                            reg = <0>;
+                            phy-mode = "rgmii";
+                        };
+                        phy1: ethernet-phy@1 {
+                            reg = <1>;
+                            phy-mode = "rgmii";
+                        };
+                        phy2: ethernet-phy@2 {
+                                reg = <2>;
+                                phy-mode = "rgmii";
+                        };
+                        phy3: ethernet-phy@3 {
+                                reg = <3>;
+                                phy-mode = "rgmii";
+                        };
+                        phy4: ethernet-phy@4 {
+                                reg = <4>;
+                                phy-mode = "rgmii";
+                        };
+                        phy1f: ethernet-phy@1f {
+                                reg = <0x1f>;
+                                phy-mode = "rgmii";
+                        };
 		};
 		
 	};
@@ -111,7 +117,7 @@
 
 	gsw@10110000 {
 		ralink,port4 = "gmac";
-                //mediatek,mt7530 = <1>;  /*zoe add for giga port*/  
+                mediatek,mt7530 = <1>;  /*zoe add for giga port*/  
 	};
 
 	sdhci@10130000 {
