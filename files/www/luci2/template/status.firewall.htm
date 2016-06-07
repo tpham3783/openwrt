@@ -1,0 +1,39 @@
+<ul class="nav nav-tabs">
+	<li class="active"><a href="#ipv4" data-toggle="tab"><%:IPv4 Firewall%></a></li>
+	<li><a href="#ipv6" data-toggle="tab"><%:IPv6 Firewall%></a></li>
+</ul>
+
+<div class="tab-content">
+	<div class="tab-pane active" id="ipv4">
+		<div class="panel panel-default">
+
+			<div class="panel-body">
+        	                <input class="btn btn-primary" type="button" id="btn_reset_counters" value="<%:Reset Counters%>" />
+                	        <input class="btn btn-primary" type="button" id="btn_restart_firewall" value="<%:Restart Firewall%>" />
+               		</div>
+
+			<BR>
+			<div class="panel-body" id="xpackage_table">
+			<textarea readonly="readonly" wrap="off" id="ipv4_rules" class="form-control"><%:Collecting data...%></textarea>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="tab-pane" id="ipv6">
+
+		<div class="panel panel-default">
+
+			<div class="panel-body">
+        	                <input class="btn btn-primary" type="button" id="btn_reset_counters_ip6" value="<%:Reset Counters%>" />
+                	        <input class="btn btn-primary" type="button" id="btn_restart_firewall_ip6" value="<%:Restart Firewall%>" />
+             		</div>
+
+			<BR>
+			<div class="text-right">
+	i			<textarea readonly="readonly" wrap="off" id="ipv6_rules" class="form-control"><%:Collecting data...%></textarea>
+			</div>
+		</div>
+	</div>
+
+</div>
