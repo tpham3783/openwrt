@@ -8,6 +8,20 @@ L.ui.view.extend({
 		expect: { '': { } }
 	}),
 
+	cioCleanUpgrade: L.rpc.declare({
+		object: 'luci2.ciosystem',
+		method: 'cio_clean_upgrade',
+		params: [ 'keep' ],
+		expect: { '': { } }
+	}),
+
+	sysUpgrade: L.rpc.declare({
+		object: 'luci2.system',
+		method: 'start_upgrade',
+		params: [ 'keep' ],
+		expect: { '': { } }
+	}),
+
 	testUpgrade: L.rpc.declare({
 		object: 'luci2.system',
 		method: 'upgrade_test',
@@ -100,15 +114,24 @@ L.ui.view.extend({
 						$('<label />')
 							.append($('<input />')
 								.attr('type', 'checkbox')
+								.prop('id', 'keepConfig')
 								.prop('checked', true))
 							.append(' ')
 							.append(L.tr('Keep configuration when reflashing'))
 					], {
 						style: 'confirm',
 						confirm: function() {
+							//self.startUpgrade(('#keepConfig').prop('checked'));
+							if( $('#keepConfig').prop('checked') ){
+								self.cioUpgrade(true);
+                                                        }else{
+								self.cioCleanUpgrade(true);
+                                                        }
+							/*
 							self.cioUpgrade(true).then(function(rcv) {
 								console.log(rcv);
 							});
+							*/
 
 							self.handleUpgrading();
 						}

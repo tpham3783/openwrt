@@ -2,12 +2,19 @@
 
 case "$1" in
 	list)
-		echo '{ "cio_upgrade": { "keep": true } }'
+		echo '{ "cio_upgrade": { "keep": true }, "cio_clean_upgrade": { "keep": true} }'
 	;;
 	call)
 		case "$2" in
 			cio_upgrade)
 				sysupgrade -v /tmp/firmware.bin
+				echo '{ "msg1": "here do sysupgrade" }'
+				reboot;
+			;;
+			cio_clean_upgrade)
+				rm -rf /overlay/upper/*
+				echo y | firstboot
+				sysupgrade -n -v /tmp/firmware.bin
 				echo '{ "msg1": "here do sysupgrade" }'
 				reboot;
 			;;
