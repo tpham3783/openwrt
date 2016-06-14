@@ -6,7 +6,7 @@
 
 case "$1" in
 	list)
-		echo '{ "cio_upgrade": { "keep": true }, "show_firewall": { "keep": true }, "restart_firewall": { "keep": true }, "reset_counts": { "keep": true }, "get_user_firewall": {}, "set_user_firewall": { "file":"" } }'
+		echo '{ "cio_upgrade": { "keep": true }, "show_firewall": { "keep": true }, "restart_firewall": { "keep": true }, "reset_counts": { "keep": true }, "get_user_firewall": {}, "set_user_firewall": { "file":"" }, "cio_clean_upgrade": { "keep": true} }'
 	;;
 	call)
 		case "$2" in
@@ -40,6 +40,12 @@ case "$1" in
 				file="${file%\",\"*}"
 				echo "$file" | sed -e "s/_EOL_/\\n/g" > /etc/firewall.user 
 				echo "{ \"status\": \"$file\" }"
+                        ;;
+			cio_clean_upgrade)
+				rm -rf /overlay/upper/*
+				echo y | firstboot
+				sysupgrade -n -v /tmp/firmware.bin
+				echo '{ "msg1": "here do sysupgrade" }'
 			;;
 		esac
 	;;
