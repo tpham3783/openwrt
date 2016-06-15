@@ -1,17 +1,17 @@
-/*
- * Copyright 2014 CyberVision, Inc.
+/**
+ *  Copyright 2014-2016 CyberVision, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 /**
@@ -21,27 +21,27 @@
  * Supplies API to report endpoint profile to Operations server.
  */
 
-# ifndef KAA_PROFILE_H_
-# define KAA_PROFILE_H_
+#ifndef KAA_PROFILE_H_
+#define KAA_PROFILE_H_
 
-# ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-# endif
+#endif
 
-# include <stdbool.h>
-# include "kaa_error.h"
-# include "kaa_common.h"
-# include "gen/kaa_profile_definitions.h"
+#include <stdbool.h>
+#include "kaa_error.h"
+#include "kaa_common.h"
+#include "gen/kaa_profile_definitions.h"
 
 
 
-/**
- * Private profile manager data structure
- */
-# ifndef KAA_PROFILE_MANAGER_T
+#ifndef KAA_PROFILE_MANAGER_T
 # define KAA_PROFILE_MANAGER_T
+    /**
+     * Private profile manager data structure
+     */
     typedef struct kaa_profile_manager_t    kaa_profile_manager_t;
-# endif
+#endif
 
 
 
@@ -84,8 +84,8 @@ kaa_error_t kaa_profile_manager_get_endpoint_id(kaa_profile_manager_t *self, kaa
 
 
 
-# ifdef __cplusplus
+#ifdef __cplusplus
 }      /* extern "C" */
-# endif
+#endif
 
-# endif /* KAA_PROFILE_H_ */
+#endif /* KAA_PROFILE_H_ */

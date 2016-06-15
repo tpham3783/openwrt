@@ -1,17 +1,17 @@
-/*
- * Copyright 2014 CyberVision, Inc.
+/**
+ *  Copyright 2014-2016 CyberVision, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 /**
@@ -72,22 +72,22 @@ kaa_error_t ext_log_upload_strategy_create(struct kaa_context_s *context, void *
 ext_log_upload_decision_t ext_log_upload_strategy_decide(void *context, const void *log_storage_context);
 
 /**
- * @brief Retrieves the maximum size of a report pack that will be delivered in a single request to the Operations server.
- *
- * @param[in]   context    Log upload strategy context.
- * @return                 The size of a batch in bytes.
- */
-size_t ext_log_upload_strategy_get_bucket_size(void *context);
-
-
-
-/**
  * @brief The maximum time to wait a log delivery response.
  *
  * @param[in]   context    Log upload strategy context.
  * @return                 Time in seconds.
  */
 size_t ext_log_upload_strategy_get_timeout(void *context);
+
+
+
+/**
+ * @brief Max amount of log batches allowed to be uploaded parallel.
+ *
+ * @param[in]   context    Log upload strategy context.
+ * @return                 Amount of batches.
+ */
+size_t ext_log_upload_strategy_get_max_parallel_uploads(void *context);
 
 
 

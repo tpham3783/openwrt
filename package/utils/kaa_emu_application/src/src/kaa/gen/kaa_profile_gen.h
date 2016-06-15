@@ -1,17 +1,17 @@
-/*
- * Copyright 2014-2015 CyberVision, Inc.
+/**
+ *  Copyright 2014-2016 CyberVision, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 # ifndef KAA_PROFILE_GEN_H_
@@ -25,17 +25,19 @@ extern "C" {
 # endif
 
 
+
 typedef struct {
     kaa_string_t * device_id;
     kaa_string_t * device_version;
     kaa_string_t * device_type;
+    kaa_string_t * timestamp;
 
     serialize_fn serialize;
     get_size_fn  get_size;
     destroy_fn   destroy;
 } kaa_profile_device_profile_t;
 
-kaa_profile_device_profile_t *kaa_profile_device_profile_create();
+kaa_profile_device_profile_t *kaa_profile_device_profile_create(void);
 kaa_profile_device_profile_t *kaa_profile_device_profile_deserialize(avro_reader_t reader);
 
 #ifdef __cplusplus

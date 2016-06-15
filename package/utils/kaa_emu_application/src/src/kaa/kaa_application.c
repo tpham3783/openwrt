@@ -17,11 +17,15 @@
 #include <kaa/kaa_logging.h>
 #include <kaa/platform-impl/common/ext_log_upload_strategies.h>
 
+
 #include "kaa_notification_manager.h"
 #include "gen/kaa_notification_definitions.h"
 
 #include "gen/kaa_profile_definitions.h"
 #include "cio_defaults.h"
+#include "cio_event.h"
+#include "cio_monitoring.h"
+#include "cio_notification_manager.h"
 
 /*
  * Forward declarations.
@@ -36,88 +40,83 @@ static kaa_client_t *kaa_client = NULL;
 
 static void *log_storage_context         = NULL;
 static void *log_upload_strategy_context = NULL;
+
+//kaa_log_bucket_constraints_t bucket_sizes = {1,1};
+
+/* Specify log bucket size constraints */
+kaa_log_bucket_constraints_t bucket_sizes = {
+     .max_bucket_size       = 512,  /* Bucket size in bytes */
+     .max_bucket_log_count  = 1,    /* Maximum log count in one bucket */
+};
+
 static size_t log_record_counter = 0;
 
-int8_t update_log = 0;
+unsigned int  previous_interface_states = 0;
 char device_details[LOG_BUF_SZ] = {};
 char device_type[DEVICE_TYPE_LEN] = {};
 
 /**
  * Log records
  */
+char emulatedImei[16] = {};
  
 char log_record_id[KAA_LOGRECORD_SIZE] = {}; 
-char log_record_message[KAA_LOGRECORD_SIZE*2] = {};
+char log_record_message[EVENT_RESPONSE_SIZE] = {};
 
-  
-static void emu_device_add_log_record(void *context)
+static void emu_device_timer_function(void *context)
 {
-    if (update_log == 0) {
-        return;
-    }
-    log_record_counter++;
-    kaa_user_log_record_t *log_record = kaa_logging_device_log_create();
-    if (!log_record) {
-        dprint("Failed to create log record, error code %d\n", KAA_ERR_NOMEM);
-        return;
+    
+    
+       
+    kaa_time_t checkin_interval = KAA_TIME() - last_checkin_time;
+
+    if (checkin_interval >= CIO_CHECKIN_TIMEOUT) {
+         dprint("Checkin.....\n\n");
+        last_checkin_time = KAA_TIME();
+        device_check_in_event();
     }
     
-    log_record->command_id = kaa_string_move_create(log_record_id, NULL);
-    
-    if (strstr(log_record_message, "Failed")) {
-        log_record->result = kaa_string_move_create("Failed", NULL);
-    } else {
-        log_record->result = kaa_string_move_create("Success", NULL);
+
+    kaa_time_t interface_status_check = KAA_TIME() - last_interface_status_check_time;
+
+    if (interface_status_check >= CIO_INTERFACE_STATUS_CHECK_TIMEOUT) {
+         dprint("interface status check Polling.....\n\n");
+        last_interface_status_check_time = KAA_TIME();
+        check_device_alerts();
     }
 
-    log_record->message1 = kaa_string_move_create(log_record_message, NULL);
-    log_record->message2 = kaa_string_move_create("NA", NULL);
-
-    dprint("Going to add %zuth; id: (%s) ;msg (%s)\n", log_record_counter, (char*)log_record_id,(char*)log_record_message);
-
-    kaa_error_t error_code = kaa_logging_add_record(kaa_client_get_context(kaa_client)->log_collector, log_record);
-    if (error_code) {
-        dprint("Failed to add log record, error code %d\n", error_code);
-    }
-
-    if(strcmp(log_record_message,"Success:Firmware_Update")==0){
-
-        dprint("Initiating Firmware Update\n");
-        sys_upgrade(FIRMWARE_UPDATE);
-
-    }else if(strcmp(log_record_message,"Success:Config_Update")==0){
-
-        dprint("Initiating Config Update\n");
-        sys_upgrade(CONFIG_UPDATE);
-
-    }else if(strcmp(log_record_message,"Initiating_Reboot") == 0){
-
-        dprint("Initiating Reboot\n");
-        system("reboot");
-
-    }
-
-    log_record->destroy(log_record);
-
-    update_log = 0;
+   
 }
 
 void on_notification(void *context, uint64_t *topic_id, kaa_notification_t *notification)
 {
     
-    (void)context;    
+    (void)context;  
+    int ret = 0;  
     char log_record_tag[KAA_LOGRECORD_SIZE] = {}; 
-    
+    static char r_result[KAA_LOGRECORD_SIZE] = {}; 
+    static char r_cmdID[KAA_LOGRECORD_SIZE] = {}; 
+    static char r_response[EVENT_RESPONSE_SIZE] = {}; 
+        
     memset(log_record_id,0,sizeof(KAA_LOGRECORD_SIZE));
     memset(log_record_tag,0,sizeof(KAA_LOGRECORD_SIZE));
 
     strcpy(log_record_id,notification->command_id->data);
     strcpy(log_record_tag, notification->command->data);
-    
+
     dprint("Notification Id:%s; Command: %s\n",(char*)log_record_id,(char*)log_record_tag);
     
     memset(log_record_message,'\0',sizeof(log_record_message));
-    update_log = parse_notification(notification, log_record_message);
+    ret = parse_notification(notification, log_record_message);
+
+    sprintf(r_result,"%s",KAA_SUCCESS);
+    sprintf(r_response,"%s",log_record_message);
+    sprintf(r_cmdID,"%s",log_record_id);
+
+    cio_notification_response(context,r_result,r_response,r_cmdID);
+
+    //system_health_update();
+    
 }
 
 void on_topics_received(void *context, kaa_list_t *topics)
@@ -137,14 +136,36 @@ void on_topics_received(void *context, kaa_list_t *topics)
     }
 }
 
-int main(/*int argc, char *argv[]*/)
+
+
+void send_cio_notification(void)
 {
+   //cio_notification_response(NULL, NULL); 
+}
+
+void *get_client(void)
+{
+    return kaa_client;
+}
+
+int main(int argc, char *argv[])
+{
+
+
+    char pid[LOG_BUF_SZ]={};
+    char cTime[LOG_BUF_SZ]={};
+    char cmd[LOG_BUF_SZ]={};
+
+    last_checkin_time = 0;
+    last_interface_status_check_time = 0;
+
     dprint("CIO Portal Application V1.3 (c) 2016\n");
 
 #ifdef EMULATOR
     dprint("EMULATOR\n");
 #else
     dprint("DEVICE\n");
+    system_powerON();
 #endif
 
     /**
@@ -153,6 +174,12 @@ int main(/*int argc, char *argv[]*/)
     kaa_error_t error_code = kaa_client_create(&kaa_client, NULL);
     RETURN_IF_ERROR(error_code, "Failed create Kaa client");
 
+    // Updating the timestamp
+    updtae_sys_time();
+    get_time(cTime);
+  
+    dprint("EpocTime:%s.....................................\n",cTime );
+
     /**
     * Profile data
     */ 
@@ -160,13 +187,23 @@ int main(/*int argc, char *argv[]*/)
     kaa_profile_t *profile = kaa_profile_device_profile_create();
 
 #ifdef EMULATOR
-    profile->device_version = kaa_string_move_create("'OpenWrt'_'v0.0.4'.2_'r21'_'ramips/mt7620'_'TELIT'", NULL);
-    profile->device_id = kaa_string_move_create("111222333444555", NULL);
+    
+    if (argc > 1) {
+        strcpy(emulatedImei,argv[1]);
+    } else {
+        strcpy(emulatedImei,"101010101010101");
+    }
+    profile->device_version = kaa_string_move_create("v0.0.4", NULL);
+    profile->device_id = kaa_string_move_create(emulatedImei, NULL);
     profile->device_type = kaa_string_move_create("Telit", NULL);
+    profile->timestamp = kaa_string_move_create(cTime, NULL);
+    dprint("IMEI : %s\n",emulatedImei);
 #else
-    profile->device_version = kaa_string_move_create(get_device_details(&device_details), NULL);
+    get_firmware_version(device_details);
+    profile->device_version = kaa_string_move_create(device_details, NULL);
     profile->device_id = kaa_string_move_create(get_device_imei(), NULL);
     profile->device_type = kaa_string_move_create(get_device_type(&device_type), NULL);
+    profile->timestamp = kaa_string_move_create(cTime, NULL);
 #endif     
      
     error_code = kaa_profile_manager_update_profile(kaa_client_get_context(kaa_client)->profile_manager, profile);
@@ -174,22 +211,7 @@ int main(/*int argc, char *argv[]*/)
      
     profile->destroy(profile);
 
-    /**
-    * Log Appender
-    */ 
-    error_code = ext_limited_log_storage_create(&log_storage_context, kaa_client_get_context(kaa_client)->logger, LOG_STORAGE_SIZE, NUM_LOGS_TO_KEEP);
-    RETURN_IF_ERROR(error_code, "Failed to create limited log storage");
-    
-    error_code = ext_log_upload_strategy_create(kaa_client_get_context(kaa_client), &log_upload_strategy_context, KAA_LOG_UPLOAD_VOLUME_STRATEGY);
-    RETURN_IF_ERROR(error_code, "Failed to create log upload strategy");
-
-    error_code = ext_log_upload_strategy_set_threshold_count(log_upload_strategy_context, LOG_UPLOAD_THRESHOLD);
-    RETURN_IF_ERROR(error_code, "Failed to set threshold log record count");
-
-    error_code = kaa_logging_init(kaa_client_get_context(kaa_client)->log_collector
-                                , log_storage_context
-                                , log_upload_strategy_context);
-    RETURN_IF_ERROR(error_code, "Failed to init Kaa log collector");
+   
     
     
     /**
@@ -212,10 +234,20 @@ int main(/*int argc, char *argv[]*/)
                                              , &notification_listener_id);
     RETURN_IF_ERROR(error_code, "Failed add notification listener");
 
+
+    // /**Reboot Event****/
+ 
+
+     error_code = kaa_user_manager_default_attach_to_user(kaa_client_get_context(kaa_client)->user_manager
+                                                       , KAA_USER_ID
+                                                       , KAA_USER_ACCESS_TOKEN);
+
+   
+
     /**
      * Start Kaa client main loop.
      */
-    error_code = kaa_client_start(kaa_client, &emu_device_add_log_record, (void *)kaa_client, LOG_GENERATION_FREQUENCY);
+    error_code = kaa_client_start(kaa_client, &emu_device_timer_function, (void *)kaa_client, LOG_GENERATION_FREQUENCY);
     RETURN_IF_ERROR(error_code, "Failed to start Kaa main loop");
     
     /**

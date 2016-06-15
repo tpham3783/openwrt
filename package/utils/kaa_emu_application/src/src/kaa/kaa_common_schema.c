@@ -1,24 +1,24 @@
-/*
- * Copyright 2014-2015 CyberVision, Inc.
+/**
+ *  Copyright 2014-2016 CyberVision, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 #include <stdint.h>
 #include <string.h>
 
 #include "kaa_common.h"
-#include "platform/stdio1.h"
+#include "platform/stdio.h"
 #include "kaa_common_schema.h"
 #include "avro_src/avro/io.h"
 #include "avro_src/encoding.h"
@@ -41,7 +41,7 @@ size_t avro_long_get_size(int64_t l)
 
 void kaa_string_serialize(avro_writer_t writer, void *data)
 {
-    KAA_RETURN_IF_NIL2(writer, data,)
+    KAA_RETURN_IF_NIL2(writer, data,);
 
     kaa_string_t *str = (kaa_string_t *)data;
     if (str->data) {
@@ -477,14 +477,14 @@ void kaa_null_destroy(void *data)
 {
 }
 
-size_t kaa_null_get_size()
+size_t kaa_null_get_size(void* data)
 {
     return AVRO_NULL_SIZE;
 }
 
 void kaa_data_destroy(void *data)
 {
-    KAA_RETURN_IF_NIL(data,)
+    KAA_RETURN_IF_NIL(data,);
     KAA_FREE(data);
 }
 

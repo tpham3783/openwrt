@@ -1,25 +1,25 @@
-/*
- * Copyright 2014 CyberVision, Inc.
+/**
+ *  Copyright 2014-2016 CyberVision, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "platform/stdio1.h"
+#include "platform/stdio.h"
 #include "platform/ext_sha.h"
-#include "platform/sock1.h"
+#include "platform/sock.h"
 #include "kaa_status.h"
 #include "kaa_platform_protocol.h"
 #include "utilities/kaa_mem.h"
@@ -45,25 +45,25 @@ extern kaa_error_t kaa_bootstrap_manager_bootstrap_request_serialize(kaa_bootstr
 /** External bootstrap manager API */
 extern kaa_error_t kaa_bootstrap_manager_handle_server_sync(kaa_bootstrap_manager_t *self
                                                           , kaa_platform_message_reader_t *reader
-                                                          , uint32_t extension_options
+                                                          , uint16_t extension_options
                                                           , size_t extension_length);
 
 /** External user manager API */
 extern kaa_error_t kaa_user_request_get_size(kaa_user_manager_t *self, size_t *expected_size);
 extern kaa_error_t kaa_user_request_serialize(kaa_user_manager_t *self, kaa_platform_message_writer_t* writer);
-extern kaa_error_t kaa_user_handle_server_sync(kaa_user_manager_t *self, kaa_platform_message_reader_t *reader, uint32_t extension_options, size_t extension_length);
+extern kaa_error_t kaa_user_handle_server_sync(kaa_user_manager_t *self, kaa_platform_message_reader_t *reader, uint16_t extension_options, size_t extension_length);
 
 /** External profile API */
 extern kaa_error_t kaa_profile_need_profile_resync(kaa_profile_manager_t *kaa_context, bool *result);
 extern kaa_error_t kaa_profile_request_get_size(kaa_profile_manager_t *self, size_t *expected_size);
 extern kaa_error_t kaa_profile_request_serialize(kaa_profile_manager_t *self, kaa_platform_message_writer_t* writer);
-extern kaa_error_t kaa_profile_handle_server_sync(kaa_profile_manager_t *self, kaa_platform_message_reader_t *reader, uint32_t extension_options, size_t extension_length);
+extern kaa_error_t kaa_profile_handle_server_sync(kaa_profile_manager_t *self, kaa_platform_message_reader_t *reader, uint16_t extension_options, size_t extension_length);
 
 /** External event manager API */
 #ifndef KAA_DISABLE_FEATURE_EVENTS
 extern kaa_error_t kaa_event_request_get_size(kaa_event_manager_t *self, size_t *expected_size);
 extern kaa_error_t kaa_event_request_serialize(kaa_event_manager_t *self, size_t request_id, kaa_platform_message_writer_t *writer);
-extern kaa_error_t kaa_event_handle_server_sync(kaa_event_manager_t *self, kaa_platform_message_reader_t *reader, uint32_t extension_options, size_t extension_length, size_t request_id);
+extern kaa_error_t kaa_event_handle_server_sync(kaa_event_manager_t *self, kaa_platform_message_reader_t *reader, uint16_t extension_options, size_t extension_length, size_t request_id);
 #endif
 
 /** External logging API */
@@ -71,14 +71,14 @@ extern kaa_error_t kaa_event_handle_server_sync(kaa_event_manager_t *self, kaa_p
 extern kaa_error_t kaa_logging_need_logging_resync(kaa_log_collector_t *self, bool *result);
 extern kaa_error_t kaa_logging_request_get_size(kaa_log_collector_t *self, size_t *expected_size);
 extern kaa_error_t kaa_logging_request_serialize(kaa_log_collector_t *self, kaa_platform_message_writer_t *writer);
-extern kaa_error_t kaa_logging_handle_server_sync(kaa_log_collector_t *self, kaa_platform_message_reader_t *reader, uint32_t extension_options, size_t extension_length);
+extern kaa_error_t kaa_logging_handle_server_sync(kaa_log_collector_t *self, kaa_platform_message_reader_t *reader, uint16_t extension_options, size_t extension_length);
 #endif
 
 /** External configuration API */
 #ifndef KAA_DISABLE_FEATURE_CONFIGURATION
 extern kaa_error_t kaa_configuration_manager_get_size(kaa_configuration_manager_t *self, size_t *expected_size);
 extern kaa_error_t kaa_configuration_manager_request_serialize(kaa_configuration_manager_t *self, kaa_platform_message_writer_t *writer);
-extern kaa_error_t kaa_configuration_manager_handle_server_sync(kaa_configuration_manager_t *self, kaa_platform_message_reader_t *reader, uint32_t extension_options, size_t extension_length);
+extern kaa_error_t kaa_configuration_manager_handle_server_sync(kaa_configuration_manager_t *self, kaa_platform_message_reader_t *reader, uint16_t extension_options, size_t extension_length);
 #endif
 
 /** External notification API */
@@ -130,7 +130,7 @@ kaa_error_t kaa_meta_data_request_serialize(kaa_platform_protocol_t *self, kaa_p
 
     KAA_LOG_TRACE(self->logger, KAA_ERR_NONE, "Going to serialize client meta sync");
 
-    uint32_t options = TIMEOUT_VALUE | PUBLIC_KEY_HASH_VALUE | PROFILE_HASH_VALUE | APP_TOKEN_VALUE;
+    uint16_t options = TIMEOUT_VALUE | PUBLIC_KEY_HASH_VALUE | PROFILE_HASH_VALUE | APP_TOKEN_VALUE;
 
     size_t payload_length = 0;
     kaa_error_t err_code = kaa_meta_data_request_get_size(&payload_length);
@@ -198,7 +198,7 @@ static kaa_error_t kaa_client_sync_get_size(kaa_platform_protocol_t *self
                                           , size_t services_count
                                           , size_t *expected_size)
 {
-    KAA_RETURN_IF_NIL4(self, services, services_count, expected_size, KAA_ERR_BADPARAM)
+    KAA_RETURN_IF_NIL4(self, services, services_count, expected_size, KAA_ERR_BADPARAM);
 
     *expected_size = KAA_PROTOCOL_MESSAGE_HEADER_SIZE;
 
@@ -425,7 +425,7 @@ kaa_error_t kaa_platform_protocol_serialize_client_sync(kaa_platform_protocol_t 
 
     *buffer_size = 0;
     kaa_error_t error = kaa_client_sync_get_size(self, info->services, info->services_count, buffer_size);
-    KAA_RETURN_IF_ERR(error)
+    KAA_RETURN_IF_ERR(error);
 
     KAA_LOG_DEBUG(self->logger, KAA_ERR_NONE, "Going to request sync buffer (size %zu)", *buffer_size);
 
@@ -477,8 +477,8 @@ kaa_error_t kaa_platform_protocol_process_server_sync(kaa_platform_protocol_t *s
     }
 
     uint32_t request_id = 0;
-    uint8_t extension_type = 0;
-    uint32_t extension_options = 0;
+    uint16_t extension_type = 0;
+    uint16_t extension_options = 0;
     uint32_t extension_length = 0;
 
     while (!error_code && kaa_platform_message_is_buffer_large_enough(reader, KAA_PROTOCOL_MESSAGE_HEADER_SIZE)) {

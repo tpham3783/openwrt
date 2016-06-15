@@ -44,28 +44,17 @@ int frm_update_check( char *url_rx,char *checksum_rx,int conf_rx,char *status)
         sprintf(cmd,"rm -rf %s/*",LOCAL_DIRECTORY);
         system(cmd);
         
-        // for(i=0;i<BIN_DESTINATION_PATH_SIZE;i++){
-        //  temp--;
-        //  if(*temp == 0x2F )
-        //  break;  
-        // }
-        // strcpy(bin_filename,temp);
-        // memset(sys_upgrade_path,'\0',sizeof(sys_upgrade_path));
-    //  sprintf(sys_upgrade_path,"%s",FW_BIN_PATH);
         if(download_file( kaa_schema_data_Input.url,FW_BIN_PATH,status))    //Curl Dowloads file to FW_BIN_PATH
             return 0;
 
-        // sprintf(cmd,"wget -c -P /tmp/kaa %s",kaa_schema_data_Input.url);
-        // system(cmd);
-
-        if(md5_Text_Read(FW_BIN_PATH,CHECK_FOR_FILE,NULL)){
+        if(File_Checker(FW_BIN_PATH,CHECK_FOR_FILE,NULL)){
         
             memset(cmd,'\0',sizeof(cmd));
             sprintf(cmd,"md5sum %s > %s",FW_BIN_PATH,MD5SUM_FILE_PATH);
                 
             system(cmd);
 
-            if(md5_Text_Read(MD5SUM_FILE_PATH,READ_DATA,kaa_schema_data_Input.checksum)){
+            if(File_Checker(MD5SUM_FILE_PATH,READ_DATA,kaa_schema_data_Input.checksum)){
                     
                 dprint("Checksum validation Success\n");
                 if(kaa_schema_data_Input.url){
@@ -82,7 +71,7 @@ int frm_update_check( char *url_rx,char *checksum_rx,int conf_rx,char *status)
                     // system("sysupgrade -b /tmp/kaa/backup-AP102B.tar.gz");
                     keep_cofig_flag=1;
                 }
-                strcpy(status,"Success:Firmware Update");
+                strcpy(status,"Success:Firmware_Update");
             }
             else{
                 dprint("Checksum validation Failed\n");
@@ -156,13 +145,13 @@ int config_restore(char *url, char *checksum,char *status)
         if(download_file( kaa_schema_data_Input.url,CONFIG_FILE_PATH,status)) {
             return 0;
         }                                                       //Curl Dowloads file to CONFIG_FILE_PATH
-        if(md5_Text_Read(CONFIG_FILE_PATH,CHECK_FOR_FILE,NULL)) {
+        if(File_Checker(CONFIG_FILE_PATH,CHECK_FOR_FILE,NULL)) {
         
             memset(cmd,'\0',sizeof(cmd));
             sprintf(cmd,"md5sum %s > %s",CONFIG_FILE_PATH,MD5SUM_FILE_PATH);
             system(cmd);
 
-            if(md5_Text_Read(MD5SUM_FILE_PATH,READ_DATA,kaa_schema_data_Input.checksum)) {
+            if(File_Checker(MD5SUM_FILE_PATH,READ_DATA,kaa_schema_data_Input.checksum)) {
                     
                 dprint("Checksum validation Success\n");
                 if(kaa_schema_data_Input.url) {
@@ -172,7 +161,7 @@ int config_restore(char *url, char *checksum,char *status)
                 if(kaa_schema_data_Input.checksum) {
                     free(kaa_schema_data_Input.checksum);
                 }        
-                strcpy(status,"Success:Config Update");
+                strcpy(status,"Success:Config_Update");
             } else {
                 dprint("Checksum validation Failed\n");
                 if(kaa_schema_data_Input.url) {
@@ -209,7 +198,7 @@ int config_restore(char *url, char *checksum,char *status)
     return 0;
 }
 
-int md5_Text_Read( char *filename,unsigned int process,char *checksum)
+int File_Checker( char *filename,unsigned int process,char *checksum)
 {
     char buffer[64];
     memset(buffer,'\0',sizeof(buffer));
@@ -248,11 +237,11 @@ int sys_upgrade(unsigned int operation)
         case FIRMWARE_UPDATE:
         if(keep_cofig_flag){
             keep_cofig_flag=0;
-            sprintf(cmd,"sysupgrade -vc %s",FW_BIN_PATH);
+            sprintf(cmd,"sysupgrade -v -c %s",FW_BIN_PATH);
             dprint("Going to update firmware without conifg change .. %s", cmd);
 
         }else{
-            sprintf(cmd,"sysupgrade -vn %s",FW_BIN_PATH);
+            sprintf(cmd,"sysupgrade -v -n %s",FW_BIN_PATH);
             dprint("Going to update firmware .. %s", cmd);
         }
         break;
@@ -263,8 +252,9 @@ int sys_upgrade(unsigned int operation)
 
         default: return 1;
     }
-
-    system(cmd);
+    if(ENABLE_CRITICAL_COMMANDS){
+        system(cmd);
+    }
     return 0;
 
 }
@@ -295,6 +285,8 @@ int download_file( char *url,char *outfilename,char *status)
 
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curlErrorMessage);
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 90L); //in seconds
+         /* complete within 'n' seconds */
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 300L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
@@ -318,12 +310,21 @@ int download_file( char *url,char *outfilename,char *status)
 int factory_reset(void)
 {
     char cmd[50];
+    
+    if(ENABLE_CRITICAL_COMMANDS){
+       
 
-    memset(cmd,'\0',sizeof(cmd));
-    sprintf(cmd,"firstboot -y");
-    system(cmd);
-    sleep(SAFE_SLEEP_TIME_SEC);
-    memset(cmd,'\0',sizeof(cmd));
-    sprintf(cmd,"reboot -f");
-    system(cmd);
+        memset(cmd,'\0',sizeof(cmd));
+        sprintf(cmd,"firstboot -y");
+    
+        system(cmd);
+    
+        sleep(SAFE_SLEEP_TIME_SEC);
+        memset(cmd,'\0',sizeof(cmd));
+        sprintf(cmd,"reboot -f");
+     
+        system(cmd);
+
+    }
+return 0;
 }

@@ -1,17 +1,17 @@
-/*
- * Copyright 2014 CyberVision, Inc.
+/**
+ *  Copyright 2014-2016 CyberVision, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 #include <stdlib.h>
@@ -19,11 +19,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
-//#include "platform/stdio.h"
-//#include "platform/sock.h"
-#include "platform/stdio1.h"
-#include "platform/sock1.h"
-
+#include "platform/stdio.h"
+#include "platform/sock.h"
 #include "kaa_defaults.h"
 #include "kaa_platform_common.h"
 #include "kaa_platform_utils.h"
@@ -364,7 +361,7 @@ kaa_access_point_t *kaa_bootstrap_manager_get_bootstrap_access_point(kaa_bootstr
 
 kaa_error_t kaa_bootstrap_manager_handle_server_sync(kaa_bootstrap_manager_t *self
                                                    , kaa_platform_message_reader_t *reader
-                                                   , uint32_t extension_options
+                                                   , uint16_t extension_options
                                                    , size_t extension_length)
 {
     KAA_RETURN_IF_NIL2(self, reader, KAA_ERR_BADPARAM);
@@ -517,7 +514,10 @@ kaa_error_t kaa_bootstrap_manager_on_access_point_failed(kaa_bootstrap_manager_t
         access_point = (kaa_access_point_t *)kaa_list_get_data(operations_access_points->current_access_points);
 
         if (!access_point)
+        {
             execute_failover = true;
+
+        }
     }
     if (execute_failover) {
         kaa_bootstrap_manager_schedule_failover(self, prev_access_point, access_point, protocol_id, type,

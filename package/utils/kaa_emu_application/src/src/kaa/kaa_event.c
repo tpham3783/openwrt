@@ -1,17 +1,17 @@
-/*
- * Copyright 2014 CyberVision, Inc.
+/**
+ *  Copyright 2014-2016 CyberVision, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 # ifndef KAA_DISABLE_FEATURE_EVENTS
@@ -21,8 +21,8 @@
 # include <string.h>
 # include <stdarg.h>
 # include <sys/types.h>
-# include "platform/stdio1.h"
-# include "platform/sock1.h"
+# include "platform/stdio.h"
+# include "platform/sock.h"
 # include "platform/ext_sha.h"
 # include "kaa_event.h"
 # include "kaa_status.h"
@@ -247,7 +247,7 @@ static event_transaction_t *create_transaction(kaa_event_block_id id)
 
 static void destroy_transaction(void *trx_p)
 {
-    KAA_RETURN_IF_NIL(trx_p, )
+    KAA_RETURN_IF_NIL(trx_p, );
     event_transaction_t *trx = (event_transaction_t *) trx_p;
     kaa_list_destroy(trx->events, &kaa_event_destroy);
     KAA_FREE(trx);
@@ -281,7 +281,7 @@ kaa_error_t kaa_event_manager_create(kaa_event_manager_t **event_manager_p
                                    , kaa_channel_manager_t *channel_manager
                                    , kaa_logger_t *logger)
 {
-    KAA_RETURN_IF_NIL(event_manager_p, KAA_ERR_BADPARAM)
+    KAA_RETURN_IF_NIL(event_manager_p, KAA_ERR_BADPARAM);
 
     *event_manager_p = (kaa_event_manager_t *) KAA_MALLOC(sizeof(kaa_event_manager_t));
     KAA_RETURN_IF_NIL(*event_manager_p, KAA_ERR_NOMEM);
@@ -599,9 +599,10 @@ static kaa_error_t kaa_event_list_serialize(kaa_event_manager_t *self, kaa_list_
     return KAA_ERR_NONE;
 }
 
-static kaa_error_t kaa_event_listeners_request_serialize(kaa_event_manager_t *self, kaa_platform_message_writer_t *writer)
+static kaa_error_t kaa_event_listeners_request_serialize(kaa_event_manager_t *self, kaa_platform_message_writer_t *writer, uint16_t *serialized_listeners_count)
 {
     kaa_list_node_t *it = kaa_list_begin(self->event_listeners_requests);
+    *serialized_listeners_count = 0;
     while (it) {
         kaa_event_listeners_request_t *request = (kaa_event_listeners_request_t *) kaa_list_get_data(it);
         if (!request->is_sent) {
@@ -619,11 +620,13 @@ static kaa_error_t kaa_event_listeners_request_serialize(kaa_event_manager_t *se
                 kaa_error_t error = kaa_platform_message_write_aligned(writer, request->fqns[i]->buffer, fqn_length);
                 if (error) {
                     KAA_LOG_ERROR(self->logger, error, "Failed to write event listener request");
+                    *serialized_listeners_count = 0;
                     return error;
                 }
             }
 
             request->is_sent = true;
+            (*serialized_listeners_count)++;
         }
         it = kaa_list_next(it);
     }
@@ -637,7 +640,7 @@ kaa_error_t kaa_event_request_serialize(kaa_event_manager_t *self, size_t reques
     KAA_LOG_TRACE(self->logger, KAA_ERR_NONE, "Going to serialize client event sync");
 
     /* write extension header */
-    uint32_t extension_options = 0;
+    uint16_t extension_options = 0;
     if (self->sequence_number_status != KAA_EVENT_SEQUENCE_NUMBER_SYNCHRONIZED) {
         extension_options |= KAA_EVENT_CLIENT_SYNC_EXTENSION_FLAG_SEQUENCE_NUMBER_SYNC;
         KAA_LOG_TRACE(self->logger, KAA_ERR_NONE, "Going to sync event SQN");
@@ -691,9 +694,10 @@ kaa_error_t kaa_event_request_serialize(kaa_event_manager_t *self, size_t reques
             char *listeners_count_p = writer->current; // Pointer to the listeners count. Will be filled in later
             writer->current += sizeof(uint16_t);
 
-            uint16_t listeners_count = kaa_list_get_size(self->event_listeners_requests);
-            KAA_LOG_TRACE(self->logger, KAA_ERR_NONE, "Serializing %u event listeners", listeners_count);
-            error = kaa_event_listeners_request_serialize(self, writer);
+            uint16_t listeners_count = 0;
+            KAA_LOG_TRACE(self->logger, KAA_ERR_NONE, "Serializing event listeners");
+            error = kaa_event_listeners_request_serialize(self, writer, &listeners_count);
+            KAA_LOG_TRACE(self->logger, KAA_ERR_NONE, "Serialized %u event listeners", listeners_count);
             if (error) {
                 KAA_LOG_ERROR(self->logger, error, "Failed to serialize event listeners request");
                 return error;
@@ -825,7 +829,7 @@ static kaa_error_t kaa_event_read_listeners_response(kaa_event_manager_t *self, 
 
 kaa_error_t kaa_event_handle_server_sync(kaa_event_manager_t *self
                                        , kaa_platform_message_reader_t *reader
-                                       , uint32_t extension_options
+                                       , uint16_t extension_options
                                        , size_t extension_length
                                        , size_t request_id)
 {

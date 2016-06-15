@@ -15,9 +15,12 @@
 #include "kaa_notification_manager.h"
 #include "gen/kaa_notification_definitions.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 
 int parse_notification(kaa_notification_t *notification, char* status);
 int data_backup(char *url, unsigned int Upload_data, char *status);
@@ -26,6 +29,9 @@ int config_restore(char *url, char *checksum, char *status);
 unsigned int set_firewall_settings(char *firewall_setting,char *hostname,char *status);
 unsigned int read_firewall_settings(char *status);
 unsigned int execute_system_command(char *cmd,char *response,char *status);
+int process_request(char* log_record_message);
+
+unsigned int get_current_status(char* status);
 
 
 #ifdef __cplusplus

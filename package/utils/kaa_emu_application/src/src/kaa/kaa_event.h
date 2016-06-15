@@ -1,17 +1,17 @@
-/*
- * Copyright 2014 CyberVision, Inc.
+/**
+ *  Copyright 2014-2016 CyberVision, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 /**
@@ -71,7 +71,7 @@ kaa_error_t kaa_event_create_transaction(kaa_event_manager_t *self, kaa_event_bl
 /**
  * @brief Send all the events from the event block at once.
  *
- * The event block is identified by the given trx_id.
+ * The event block is identified by the given @p trx_id.
  *
  * @param[in]       self                Valid pointer to the event manager instance.
  * @param[in]       trx_id              The ID of the event block to be sent.
@@ -96,7 +96,7 @@ kaa_error_t kaa_event_remove_transaction(kaa_event_manager_t *self, kaa_event_bl
  *
  * @param[in]       fqn                 Fully-qualified name of the event (null-terminated string).
  *
- * @return Null-terminated string if corresponding event class family was found, @code NULL @endcode otherwise.
+ * @return Null-terminated string if corresponding event class family was found, @c NULL otherwise.
  */
 
 const char *kaa_find_class_family_name(const char *fqn);

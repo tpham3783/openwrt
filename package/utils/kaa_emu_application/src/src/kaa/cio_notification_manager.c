@@ -2,21 +2,23 @@
  * CIO Notification parser file
  * 
 */
-
-#include "cio_notification_manager.h"
 #include "cio_fw_update.h"
+#include "cio_notification_manager.h"
+
 #include "cio_defaults.h"
 #include "cio_at.h"
 #include "time.h"
 
-
+#include "cio_event.h"
+ 
+void clear_line_character(char* str,char* chr,unsigned int str_len);
 int parse_notification(kaa_notification_t *notification, char* status)
 {
-    int8_t update_log = 1;
+    int8_t ret = SUCCESS;
     int command = atoi(notification->command->data);
     kaa_string_t *param1value = NULL;
     kaa_string_t *param2value = NULL;
-    
+    memset(status,'\0',LOG_BUF_SZ);
     switch(command) {
         case UPDATE_FW:
             dprint("Firmware update command received\n");           
@@ -31,7 +33,7 @@ int parse_notification(kaa_notification_t *notification, char* status)
             
         case PERFORM_RESET:
             dprint("Factory Reset Command received\n");
-            factory_reset();
+            
             strcpy(status,"Factory Defaulted and Rebooting");
             break;
         
@@ -58,6 +60,7 @@ int parse_notification(kaa_notification_t *notification, char* status)
             dprint("Kernel Log Upload Command received\n");
             param1value = (kaa_string_t *)((kaa_notification_t *)notification)->value1->data;
             data_backup((char*)param1value,KERNAL_LOG_UPLOAD,status);
+            //kaa_client_stop(get_client());
             break;
         
         case EXECUTE_AT_CMD:
@@ -75,21 +78,122 @@ int parse_notification(kaa_notification_t *notification, char* status)
             dprint("Set Firewall Command Received\n");
             param1value = (kaa_string_t *)((kaa_notification_t *)notification)->value1->data;
             param2value = (kaa_string_t *)((kaa_notification_t *)notification)->value2->data;
-            set_firewall_settings((char*)param1value,(char*)param2value,(char*)status);
+            set_firewall_settings((char*)param1value,(char*)param2value,NULL);
+            strcpy(status,"SUCCESS");
+            break;
+                
+        case CUSTOM_COMMAND:
+            execute_custom_command(notification,status);
+            break;    
+            
+        default:
+            ret = FAILED;
+            break;    
+    }
+    return ret;
+}
+
+int execute_custom_command(kaa_notification_t *notification, char* status)
+{
+    kaa_string_t *param1value = NULL;
+    param1value = (kaa_string_t *)((kaa_notification_t *)notification)->value1->data;
+    int sub_command = atoi(param1value);
+    switch(sub_command) {
+        case SOFT_REBOOT:
+            dprint("Soft Reboot Command Received.\n");
+            strcpy(status,"Initiating_Reboot");           
             break;
             
-        case PERFORM_REBOOT:
-            dprint("Soft Reboot Command Received\n");
-            strcpy(status,"Initiating_Reboot");
+        case GET_DEVICE_STATUS:
+            dprint("Get Current Command Received.\n");
+            get_current_status(status);          
             break;
             
         default:
-            update_log = 0;
-            break;    
+            dprint("Unknown Sub Command received.\n");
+            break;       
     }
-    return update_log;
+    return 0;
 }
 
+unsigned int get_current_status(char* status)
+{
+    //TODO: Get all status info
+    //wwanip|wwanstatus|wanip|wanStatus|lanip|lanStatus|fwVersion|/*ProductModel*/|SystemUpTime|
+    //DataUsage|Mode|IMEI|ProductId|iccid|snr|signalStrength|apn|lastupdatedTime
+    
+    char wwanip[LOG_BUF_SZ] = {};
+    get_wwan_ip(wwanip);
+   // clear_line_character(wwanip,"\n",LOG_BUF_SZ);
+    
+    int wwan_status = get_interface_status(WWAN);
+    
+    char wanip[LOG_BUF_SZ] = {};
+    get_wan_ip(wanip);
+    // clear_line_character(wanip,"\n",LOG_BUF_SZ);
+
+    int wan_status = get_interface_status(WAN);
+ 
+    char lanip[LOG_BUF_SZ] = {};
+    get_lan_ip(lanip);
+    // clear_line_character(lanip,"\n",LOG_BUF_SZ);
+        
+    int lan_status = get_interface_status(LAN);
+     
+    char firmware_version[LOG_BUF_SZ] = {};
+    get_firmware_version(firmware_version);
+    // clear_line_character(firmware_version,"\n",LOG_BUF_SZ);
+            
+    char system_uptime[SYSTEM_UPTIME_SIZE] = {};
+    get_system_uptime(system_uptime);
+    // clear_line_character(system_uptime,"\n",LOG_BUF_SZ);
+        
+    char wwan_data_usage[LOG_BUF_SZ] = {};
+    get_wwan_data_usage(wwan_data_usage);
+    // clear_line_character(wwan_data_usage,"\n",LOG_BUF_SZ);
+        
+    
+    char mode[LOG_BUF_SZ] = {};
+    get_mode(mode);
+    // clear_line_character(mode,"\n",LOG_BUF_SZ);
+        
+    char IMEI[LOG_BUF_SZ] = {};
+    sprintf(IMEI,"%s",get_device_imei());
+
+    long product_id = get_product_id();
+    
+    char iccid[LOG_BUF_SZ] = {};
+    get_iccid(iccid);
+    clear_line_character(iccid,"\n",LOG_BUF_SZ);
+        
+    char snr[LOG_BUF_SZ] = {};
+    get_snr(snr);
+    // clear_line_character(snr,"\n",LOG_BUF_SZ);
+
+    char signal_strength[LOG_BUF_SZ] = {};
+    get_signal_strength(signal_strength);
+    // clear_line_character(signal_strength,"\n",LOG_BUF_SZ);
+
+    char apn[LOG_BUF_SZ] = {};
+    get_apn(apn);
+    // clear_line_character(apn,"\n",LOG_BUF_SZ);
+
+    kaa_time_t rawtime = KAA_TIME();
+    
+    sprintf(status,"%s|%d|%s|%d|%s|%d|%s|%s|%s|%s|%s|%ld|%s|%s|%s|%s|%lu",
+        wwanip,wwan_status,wanip,wan_status,lanip,lan_status,firmware_version,
+        system_uptime, wwan_data_usage,mode,IMEI,product_id,iccid,snr,signal_strength,apn,(unsigned long)rawtime);
+    // sprintf(status,"%s|%s|%s|%s|%s|%s|%ld|%s|%s|%s|%s|%lu"
+    //     ,status,firmware_version,system_uptime, wwan_data_usage,mode,IMEI,product_id,iccid,snr,signal_strength,apn,(unsigned long)rawtime);
+    
+     // sprintf(status,
+     //    "||0||1|1|v0.0.8|328307.81\n|12563456.23,12563456.23\n|3g\n|111222333444555|123456789|5151515151515151|56.25|-45.69|vodafone|1460716566");  
+    // sprintf(status,
+    //     "|||0\n|192.168.1.150|1|v0.0.8|828307.81\n|12563456.23,12563456.23\n|3g\n|111222333444555|123456789|5151515151515151|56.25|-45.69|vodafone|1460716566");  
+    
+    dprint("\n\nSTATUS: %s\n\n\n",status); 
+    return 0;
+}
 
 int data_backup(char *url, unsigned int Upload_data,char *status)
 {
@@ -144,11 +248,15 @@ int data_backup(char *url, unsigned int Upload_data,char *status)
             }
         return 0;
     }
-#ifdef EMULATOR
+    #ifdef EMULATOR
+    sprintf(cmd,"sudo dmesg > %s",backup_file_path);
     dprint("Execute -> %s\n",cmd);
-#else
     system(cmd);
-#endif    
+    //strcpy(status,"SUCCESS");
+    //return 0;
+    #else
+    system(cmd);
+    #endif    
     
 
     FILE *handler = fopen(backup_file_path,"r");
@@ -241,6 +349,7 @@ int data_backup(char *url, unsigned int Upload_data,char *status)
     return 0;
 }
 
+
 unsigned int set_firewall_settings(char *firewall_setting,char *hostname,char *status)
 {
     unsigned int index = 0;
@@ -249,10 +358,10 @@ unsigned int set_firewall_settings(char *firewall_setting,char *hostname,char *s
     char t_data[128] = {};
     unsigned char cfirewall_settings[32] = {};
     unsigned int ifirewall_settings = 0;
-#ifdef EMULATOR
-printf("Firewall Settings:%s Hostname:%s\n",firewall_setting,hostname);
-#else
-   
+    #ifdef EMULATOR
+    printf("Firewall Settings:%s Hostname:%s\n",firewall_setting,hostname);
+    #else
+    dprint("Firewall Settings:%s Hostname:%s\n",firewall_setting,hostname);  
 
     //sprintf(t_data,"%s",data);
 
@@ -268,7 +377,7 @@ printf("Firewall Settings:%s Hostname:%s\n",firewall_setting,hostname);
     //     }
 
     // }
-    ifirewall_settings = atoi(firewall_setting);
+    ifirewall_settings = strtol(firewall_setting,NULL,16);
     
     if(ifirewall_settings & DHCP_RENEW) {
         system("uci set firewall.@rule[0].target=ACCEPT");
@@ -276,34 +385,34 @@ printf("Firewall Settings:%s Hostname:%s\n",firewall_setting,hostname);
         system("uci set firewall.@rule[0].target=REJECT");
     }
     if(ifirewall_settings & ALLOW_PING) {
-        system("uci set firewall.@rule[0].target=ACCEPT");
+        system("uci set firewall.@rule[1].target=ACCEPT");
     } else {
-        system("uci set firewall.@rule[0].target=REJECT");
+        system("uci set firewall.@rule[1].target=REJECT");
     }
     if(ifirewall_settings & ALLOW_IGMP) {
-        system("uci set firewall.@rule[0].target=ACCEPT");
+        system("uci set firewall.@rule[2].target=ACCEPT");
     } else {
-        system("uci set firewall.@rule[0].target=REJECT");
+        system("uci set firewall.@rule[2].target=REJECT");
     }
     if(ifirewall_settings & ALLOW_DHCPv6) {
-        system("uci set firewall.@rule[0].target=ACCEPT");
+        system("uci set firewall.@rule[3].target=ACCEPT");
     } else {
-        system("uci set firewall.@rule[0].target=REJECT");
+        system("uci set firewall.@rule[3].target=REJECT");
     }
     if(ifirewall_settings & ALLOW_MLD) {
-        system("uci set firewall.@rule[0].target=ACCEPT");
+        system("uci set firewall.@rule[4].target=ACCEPT");
     } else {
-        system("uci set firewall.@rule[0].target=REJECT");
+        system("uci set firewall.@rule[4].target=REJECT");
     }
     if(ifirewall_settings & ALLOW_ICMPv6_INPUT) {
-        system("uci set firewall.@rule[0].target=ACCEPT");
+        system("uci set firewall.@rule[5].target=ACCEPT");
     } else {
-        system("uci set firewall.@rule[0].target=REJECT");
+        system("uci set firewall.@rule[5].target=REJECT");
     }
     if(ifirewall_settings & ALLOW_ICMPv6_FWD) {
-        system("uci set firewall.@rule[0].target=ACCEPT");
+        system("uci set firewall.@rule[6].target=ACCEPT");
     } else {
-        system("uci set firewall.@rule[0].target=REJECT");
+        system("uci set firewall.@rule[6].target=REJECT");
     }
 
     system("uci commit");
@@ -327,7 +436,7 @@ printf("Firewall Settings:%s Hostname:%s\n",firewall_setting,hostname);
     system("/etc/init.d/boot restart");
     system("echo $(uci get system.@system[0].hostname) > /proc/sys/kernel/hostname");
     
-#endif 
+    #endif 
     return 0;
 
 }
@@ -338,10 +447,10 @@ unsigned int read_firewall_settings(char *status)
     unsigned int firewall_settings = 0;
     static char t_status[LOG_BUF_SZ] ={};
     unsigned char hostname_err = 0;
-#ifdef EMULATOR
+    #ifdef EMULATOR
     snprintf(status,LOG_BUF_SZ,"Success:Firewall_Settings:FFFF:Err_Code:0000:Hostname:CIO_EMULATOR");
     dprint("%s\n", status);
-#else
+    #else
     if (!execute_system_command("uci get firewall.@rule[0].target","ACCEPT",t_status)){
         firewall_settings|=DHCP_RENEW;
     } else if (!execute_system_command("uci get firewall.@rule[0].target","REJECT",t_status)) {
@@ -355,7 +464,7 @@ unsigned int read_firewall_settings(char *status)
 
     if (!execute_system_command("uci get firewall.@rule[1].target","ACCEPT",t_status)){
         firewall_settings|=ALLOW_PING;
-    } else if (!execute_system_command("uci get firewall.@rule[0].target","REJECT",t_status)) {
+    } else if (!execute_system_command("uci get firewall.@rule[1].target","REJECT",t_status)) {
         firewall_settings&=(~ALLOW_PING);
 
 
@@ -367,7 +476,7 @@ unsigned int read_firewall_settings(char *status)
 
     if (!execute_system_command("uci get firewall.@rule[2].target","ACCEPT",t_status)){
         firewall_settings|=ALLOW_IGMP;
-    } else if (!execute_system_command("uci get firewall.@rule[0].target","REJECT",t_status)) {
+    } else if (!execute_system_command("uci get firewall.@rule[2].target","REJECT",t_status)) {
         firewall_settings&=(~ALLOW_IGMP);
     } else {
         errcode|=ALLOW_IGMP;
@@ -377,7 +486,7 @@ unsigned int read_firewall_settings(char *status)
 
     if (!execute_system_command("uci get firewall.@rule[3].target","ACCEPT",t_status)){
         firewall_settings|=ALLOW_DHCPv6;
-    } else if (!execute_system_command("uci get firewall.@rule[0].target","REJECT",t_status)) {
+    } else if (!execute_system_command("uci get firewall.@rule[3].target","REJECT",t_status)) {
         firewall_settings&=(~ALLOW_DHCPv6);
     } else {
         errcode|=ALLOW_DHCPv6;
@@ -387,7 +496,7 @@ unsigned int read_firewall_settings(char *status)
 
     if (!execute_system_command("uci get firewall.@rule[4].target","ACCEPT",t_status)){
         firewall_settings|=ALLOW_MLD;
-    } else if (!execute_system_command("uci get firewall.@rule[0].target","REJECT",t_status)) {
+    } else if (!execute_system_command("uci get firewall.@rule[4].target","REJECT",t_status)) {
         firewall_settings&=(~ALLOW_MLD);
     } else {
         errcode|=ALLOW_MLD;
@@ -397,7 +506,7 @@ unsigned int read_firewall_settings(char *status)
 
     if (!execute_system_command("uci get firewall.@rule[5].target","ACCEPT",t_status)){
         firewall_settings|=ALLOW_ICMPv6_INPUT;
-    } else if (!execute_system_command("uci get firewall.@rule[0].target","REJECT",t_status)) {
+    } else if (!execute_system_command("uci get firewall.@rule[5].target","REJECT",t_status)) {
         firewall_settings&=(~ALLOW_ICMPv6_INPUT);
     } else {
         errcode|=ALLOW_ICMPv6_INPUT;
@@ -407,7 +516,7 @@ unsigned int read_firewall_settings(char *status)
 
     if (!execute_system_command("uci get firewall.@rule[6].target","ACCEPT",t_status)){
         firewall_settings|=ALLOW_ICMPv6_FWD;
-    } else if (!execute_system_command("uci get firewall.@rule[0].target","REJECT",t_status)) {
+    } else if (!execute_system_command("uci get firewall.@rule[6].target","REJECT",t_status)) {
         firewall_settings&=(~ALLOW_ICMPv6_FWD);
     } else {
         errcode|=ALLOW_ICMPv6_FWD;
@@ -420,9 +529,9 @@ unsigned int read_firewall_settings(char *status)
     execute_system_command("uci get system.@system[0].hostname",NULL,t_status);
    
 
-    snprintf(status,LOG_BUF_SZ,"Success:Firewall_Settings:%d:Err_Code:%d:Hostname:%s",firewall_settings,errcode,t_status);
+    snprintf(status,LOG_BUF_SZ,"Success:Firewall_Settings:%04X:Err_Code:%d:Hostname:%s",firewall_settings,errcode,t_status);
     dprint("%s\n", status);
-#endif 
+    #endif 
     return 0;
     
 }
@@ -432,24 +541,33 @@ unsigned int execute_system_command(char *cmd,char *response,char *status)
     char exec_cmd[256]={};
     
     char *t_response = NULL;
+    memset(status,'\0',sizeof(status));
+
+
 
     t_response = (char *) malloc(sizeof(char) * MAX_LENGTH_OF_SYSTEM_CMD_RESPONSE);
+    memset(t_response,'\0',MAX_LENGTH_OF_SYSTEM_CMD_RESPONSE);
     sprintf(exec_cmd,"%s",cmd);
     
 
-    FILE *handler = popen(exec_cmd, "r");;
+    FILE *handler = popen(exec_cmd, "r");
     if (handler){
         fgets(t_response, MAX_LENGTH_OF_SYSTEM_CMD_RESPONSE, handler);
         if(response){
             if(strstr(t_response,response)){
-                snprintf(status,LOG_BUF_SZ, "Success:%s", t_response);
+                snprintf(status,LOG_BUF_SZ, "%s", t_response);
                 dprint("%s\n", status);
                 pclose(handler);
                 free(t_response);
                 return 0;
             }
         } else {
-            snprintf(status,LOG_BUF_SZ, "Success:%s", t_response);
+            if(t_response){
+                snprintf(status,LOG_BUF_SZ, "%s", t_response);
+            } else {
+                strcpy(status,"ERROR");
+            }
+            
             dprint("%s\n", status);
             pclose(handler);
             free(t_response);
@@ -469,3 +587,45 @@ unsigned int execute_system_command(char *cmd,char *response,char *status)
     }
 }
 
+int process_request(char* log_record_message)
+{
+    if(strcmp(log_record_message,"Success:Firmware_Update")==0){
+
+        dprint("Initiating Firmware Update\n");
+        sys_upgrade(FIRMWARE_UPDATE);
+
+    }else if(strcmp(log_record_message,"Success:Config_Update")==0){
+
+        dprint("Initiating Config Update\n");
+        sys_upgrade(CONFIG_UPDATE);
+
+    }else if(strcmp(log_record_message,"Initiating_Reboot") == 0){
+
+        dprint("Initiating Reboot\n");
+         if(ENABLE_CRITICAL_COMMANDS){
+            system("reboot");
+        }
+
+    }else if(strcmp(log_record_message,"Factory Defaulted and Rebooting")==0){
+
+       dprint("Factory Defaulted and Rebooting\n");
+       
+       factory_reset();
+
+    }
+
+    return 0;
+}
+void clear_line_character(char* str,char* chr,unsigned int str_len)
+{
+    unsigned int i=0;
+    for(i=0;i<str_len;i++)
+    {
+        if((*str) == (*chr))
+        {
+            *str = 0x00;
+        }
+
+        str++;
+    }
+}

@@ -2,9 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-
+#include <time.h>
 #include "cio_at.h"
 #include "cio_defaults.h"
+#include <kaa/platform-impl/posix/posix_time.h>
 
 
 int run_atcommand(char *at_cmd, char *status) {
@@ -13,10 +14,16 @@ int run_atcommand(char *at_cmd, char *status) {
     strcpy(status, "AT OK");
 #else
     FILE *fp;
-    char command[150];
+    char command[MONITORING_CMD_LENGTH];
 
     char *response;
 
+    if(strlen(at_cmd) > MAX_AT_CMD_LENGTH){
+
+        strcpy(status, "ERROR");
+        return 0;
+    }
+    
 
     response = (char *) malloc(sizeof(char) * AT_RESPONSE_LENGTH);
 
@@ -40,7 +47,7 @@ int run_atcommand(char *at_cmd, char *status) {
      }
 
     fgets(response, AT_RESPONSE_LENGTH, fp);
-    sprintf(status, "%s", response);
+    snprintf(status,LOG_BUF_SZ ,"%s", response);
     dprint("%s\n", status);
 
     /* close */
@@ -56,12 +63,12 @@ int manufacture_identification(char *status) {
 
     memset(response, '\0', sizeof(response));
 
-    run_atcommand("AT+CGMI", response);
-    if (strstr(response, "Telit")) {
-        strcpy(status, "Telit");
+    run_atcommand("AT+CGMM", response);
+    if (strstr(response, "LE910-EUG")) {
+        strcpy(status, "ER1000T-EU");
 
-    } else if (strstr(response, "Sierra Wireless")) {
-        strcpy(status, "Sierra");
+    } else if (strstr(response, "LE910-NAG")) {
+        strcpy(status, "ER1000T-NA");
     } else if (strstr(response, "SIMCOM")) {
         strcpy(status, "SIMCom");
     } else if (strstr(response, "Qualcom")) {
@@ -165,6 +172,223 @@ char *get_device_type(char* device_type)
     manufacture_identification(device_type);
     return device_type;
 }
+unsigned int get_firmware_version(char* openwrt_version)
+{
+    char version[8] = {};
+    FILE *handler = fopen("/etc/openwrt_version", "r");
+    if (handler){
+        fgets(version, sizeof(version), handler);
+        strcpy(openwrt_version, version);
+        pclose(handler);
+    }
+    return 0;
+}
+unsigned int get_time(char* cTime){
+
+    kaa_time_t rawtime = KAA_TIME();
+
+    sprintf(cTime,"%lld",(long long)rawtime);
+    return 0;
+}
+
+unsigned int get_phoneNumber(char* phoneNumber){
+
+    return (execute_system_command("at.sh AT+CNUM=?| grep '+CNUM:' | cut -d, -f2 | awk '{ print $1}'",NULL,phoneNumber));
+}
+
+unsigned int get_system_uptime(char* system_uptime)
+{
+    return (execute_system_command("cat /proc/uptime | awk '{print $1}'",NULL,system_uptime));
+}
+
+unsigned int get_lan_ip(char* lan_ip_address)
+{
+    #ifdef EMULATOR
+        return (execute_system_command("ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'",NULL,lan_ip_address));
+    #else
+        return (execute_system_command("ifconfig br-lan | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'",NULL,lan_ip_address));
+    #endif
+}
+
+unsigned int get_wan_ip(char* wan_ip_address)
+{
+    return (execute_system_command("ifconfig eth0.2| grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'",NULL,wan_ip_address));
+}
+
+unsigned int get_wwan_ip(char* wwan_ip_address)
+{
+    return (execute_system_command("ifconfig wwan0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'",NULL,wwan_ip_address));
+}
+
+unsigned int get_interface_status(int interface_name)
+{
+    char ip_address[16] = {};
+    switch (interface_name)
+    {
+        case WWAN:
+            get_wwan_ip(ip_address);
+            break;
+        case WAN:
+            get_wan_ip(ip_address);
+            break;
+        case LAN:
+            get_lan_ip(ip_address);
+            break;
+        default:
+            break;
+    }
+    
+    if (strlen(ip_address) > 7)
+    {
+        return 1;
+    }else {
+        return 0;
+    }
+}
+
+unsigned int get_wan_status(void)
+{
+    char ip_address[16] = {};
+    get_wwan_ip(ip_address);
+    
+    if (strlen(ip_address) > 7)
+    {
+        return 1;
+    }else {
+        return 0;
+    }
+}
+
+unsigned long get_product_id(void)
+{
+    //TODO: Get product Id once the CIO provided the same in fw.
+    return (987654321);
+} 
+
+unsigned int get_imei_number(char* imei)
+{
+    return (run_atcommand("at+cgsn", imei));
+}
+
+unsigned int get_mode(char* mode)
+{
+    int iMode=0;
+    char cMode[LOG_BUF_SZ]={};
+
+    if(!execute_system_command("at.sh AT+WS46? | grep '+WS46:' | cut -d, -f1 | awk '{ print $2}'",NULL,cMode)){
+
+        if(strstr(cMode,"ERROR")){
+            strcpy(mode,cMode);
+            return 0;
+        }
+
+    } else {
+
+        strcpy(mode,cMode);
+        return 0;
+    }
+
+
+    iMode = atoi(cMode);
+    switch(iMode)
+    {
+        case GERAN_ONLY:
+        strcpy(mode,"GERAN_ONLY");
+        break;
+
+        case UTRAN_ONLY:
+        strcpy(mode,"UTRAN_ONLY");
+        break;
+
+        case NW_3GPP:
+        strcpy(mode,"3GPP");
+        break;
+
+        case EUTRAN_ONLY:
+        strcpy(mode,"EUTRAN_ONLY");
+        break;
+
+        case GERAN_UTRAN:
+        strcpy(mode,"GERAN AND UTRAN");
+        break;
+
+        case GERAN_EUTRAN:
+        strcpy(mode,"GERAN AND EUTRAN");
+        break;
+
+        case UTRAN_EUTRAN:
+        strcpy(mode,"UTRAN AND EUTRAN");
+        break;
+
+        default:
+        strcpy(mode,"ERROR");
+        break;
+
+
+    }
+
+
+
+    return 0;
+}
+
+unsigned int get_iccid(char* iccid)
+{
+    return (execute_system_command("at.sh AT+ICCID | grep '+ICCID:' | cut -d: -f2 | awk '{ print $1}'",NULL,iccid));
+}
+
+unsigned int get_snr(char* snr)
+{
+    int snr_value=0;
+    char cSNR[LOG_BUF_SZ]={};
+
+    if(!execute_system_command("at.sh AT+CSQ | grep '+CSQ:' | cut -d, -f1 | awk '{ print $2}'",NULL,cSNR)){
+
+        if(strstr(cSNR,"ERROR")){
+            strcpy(snr,cSNR);
+            return 0;
+        }
+
+    } else {
+
+        strcpy(snr,cSNR);
+        return 0;
+    }
+
+
+    snr_value = (atoi(cSNR) * 2) - 113;                
+   
+    sprintf(snr,"%d",snr_value);
+
+
+    return 0;
+}
+
+unsigned int get_signal_strength(char* signal_strength)
+{
+    
+    return (execute_system_command("at.sh AT+CSQ | grep '+CSQ:' | cut -d, -f1 | awk '{print $2}'",NULL,signal_strength));
+}
+
+unsigned int get_apn(char* apn)
+{
+    
+     return (execute_system_command("at.sh AT+CGDCONT? | grep '+CGDCONT:' | cut -d: -f3 | awk '{print $1}'",NULL,apn));
+}
+
+
+
+unsigned int get_wwan_data_usage(char* data_usage)
+{
+    char RXBytes[LOG_BUF_SZ]={};
+    char TXBytes[LOG_BUF_SZ]={};
+
+    execute_system_command("ifconfig eth0 | grep 'RX bytes:' | cut -d: -f2 | awk '{print $1}'",NULL,RXBytes);
+    execute_system_command("ifconfig eth0 | grep 'TX bytes:' | cut -d: -f3 | awk '{print $1}'",NULL,TXBytes);
+
+    sprintf(data_usage,"RXBytes :%s,TXBytes :%s",RXBytes,TXBytes);
+}
+
 
 char *get_device_details(char* device_details)
 {

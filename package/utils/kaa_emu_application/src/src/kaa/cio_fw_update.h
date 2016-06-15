@@ -33,7 +33,7 @@ typedef struct {
 
 
 int download_file(char *url, char *outfilename, char *status);
-int md5_Text_Read(char *filename, unsigned int process,char *checksum);
+int File_Checker(char *filename, unsigned int process,char *checksum);
 int sys_upgrade(unsigned int operation);
 int factory_reset(void);
 

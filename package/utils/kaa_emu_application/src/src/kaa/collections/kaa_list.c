@@ -1,17 +1,17 @@
-/*
- * Copyright 2014 CyberVision, Inc.
+/**
+ *  Copyright 2014-2016 CyberVision, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 #include <stddef.h>
@@ -79,7 +79,6 @@ static void reset_list(kaa_list_t *list)
 void *kaa_list_get_data(kaa_list_node_t *it)
 {
     return (it ? it->data : NULL);
-    
 }
 
 kaa_list_node_t *kaa_list_next(kaa_list_node_t *it)
@@ -117,7 +116,7 @@ size_t kaa_list_get_size(kaa_list_t *list)
     return list->size;
 }
 
-kaa_list_t *kaa_list_create()
+kaa_list_t *kaa_list_create(void)
 {
     return (kaa_list_t *) KAA_CALLOC(1, sizeof(kaa_list_t));
 }
@@ -212,29 +211,15 @@ kaa_error_t kaa_list_remove_first(kaa_list_t *list, match_predicate pred, void *
     KAA_RETURN_IF_NIL3(list, pred, list->size, KAA_ERR_BADPARAM);
 
     kaa_list_node_t *it = kaa_list_find_next(kaa_list_begin(list), pred, context);
-    if (it) {
-        if (it == list->head) {
-            list->head = it->next;
-        }
-        if (it == list->tail) {
-            list->tail = list->tail->prev;
-        }
-
-        set_next_neighbor(it->prev, it->next);
-        destroy_node(it, deallocator);
-        --list->size;
-
-        return KAA_ERR_NONE;
-    }
-
-    return KAA_ERR_NOT_FOUND;
+    kaa_list_remove_at(list, it, deallocator);
+    return it ? KAA_ERR_NONE : KAA_ERR_NOT_FOUND;
 }
 
 void kaa_list_set_data_at(kaa_list_node_t *it, void *data, deallocate_list_data deallocator)
 {
     KAA_RETURN_IF_NIL(it, );
     if (deallocator) {
-        (*deallocator)(it->data);
+        deallocator(it->data);
     } else {
         KAA_FREE(it->data);
     }
@@ -272,7 +257,7 @@ static kaa_list_node_t *kaa_split_util(kaa_list_node_t *head);
 static kaa_list_node_t *kaa_merge_util(kaa_list_node_t *first, kaa_list_node_t *second, match_predicate pred)
 {
     KAA_RETURN_IF_NIL(first, second);
-    KAA_RETURN_IF_NIL(second, first)
+    KAA_RETURN_IF_NIL(second, first);
 
     if (pred(first->data, second->data)) {
 
@@ -317,10 +302,25 @@ static kaa_list_node_t *kaa_split_util( kaa_list_node_t *head)
 
 void kaa_list_sort(kaa_list_t *list, match_predicate pred)
 {
+    KAA_RETURN_IF_NIL(list->size,);
     kaa_list_node_t *node = kaa_merge_sort(kaa_list_begin(list), pred);
-    list->head =  node;
+    list->head = node;
     while (node->next) {
         node = node->next;
     }
     list->tail = node;
+}
+
+int32_t kaa_list_hash(kaa_list_t *list, list_node_hash pred)
+{
+    KAA_RETURN_IF_NIL2(list, pred, 0);
+    uint32_t result = 1;
+    kaa_list_node_t *node = kaa_list_begin(list);
+    uint64_t element;
+    while (node) {
+        element = pred(node->data);
+        result = 31 * result + (uint32_t) (element ^ (element >> 32));
+        node = node->next;
+    }
+    return (int32_t) result;
 }

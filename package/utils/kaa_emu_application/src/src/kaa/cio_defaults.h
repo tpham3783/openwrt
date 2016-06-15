@@ -14,6 +14,8 @@
 
 #define DEBUG (1)
 
+#include "../platform/time.h"
+
 /*
  * Hard-coded Kaa log entry body.
  */
@@ -25,17 +27,29 @@
 #define KAA_TRACE "KAA_TRACE"
 #define KAA_WARN "KAA_WARN"
 
+
+/*
+ * Definitions for Returns 
+ */
+
+#define KAA_SUCCESS "Success"
+#define KAA_FAILED "Failed" 
+
+#define SUCCESS     (0)
+#define FAILED      (1)
+#define ENABLE_CRITICAL_COMMANDS (1)
 /*
  * Strategy-specific configuration parameters used by Kaa log collection feature.
  */
 #define LOG_UPLOAD_THRESHOLD                 1 /* Count of collected logs needed to initiate log upload */
-#define LOG_GENERATION_FREQUENCY             1 /* In seconds */
+#define LOG_GENERATION_FREQUENCY             5 /* In seconds */
 #define LOG_STORAGE_SIZE                     10000 /* The amount of space allocated for a log storage, in bytes */
 #define NUM_LOGS_TO_KEEP                     50    /* The minimum amount of logs to be present in a log storage, in percents */
 #define LOG_BUF_SZ                           128    /* Log buffer size in bytes */
 
-#define KAA_LOGRECORD_SIZE                   64
-
+#define KAA_LOGRECORD_SIZE                   128
+#define EVENT_RESPONSE_SIZE                  256
+#define SYSTEM_UPTIME_SIZE                   15
 #define URL_SIZE_IN_BYTES                    128  /* Size of the url for firmware download */
 #define CHEKSUM_SIZE_IN_BYTES                32 /*No of bytes of checksum to be verified */
 #define BIN_DESTINATION_PATH_SIZE            128
@@ -46,6 +60,7 @@
 #define SAFE_SLEEP_TIME_SEC                  15
 #define MAX_LENGTH_OF_SYSTEM_CMD_RESPONSE    256
 #define DEVICE_TYPE_LEN                      16 
+#define MIN_MEM_BLOCK_SIZE					 32
 
 #define LOCAL_DIRECTORY     "/tmp/kaa"
 #define FW_BIN_PATH         "/tmp/kaa/Firmware.bin"
@@ -76,6 +91,41 @@
 #define ALLOW_ICMPv6_FWD     0x0040
  /*********************************************/
 
+/***********EVENT Generation****************/
+
+#define KAA_USER_ID            "hansolo"
+#define KAA_USER_ACCESS_TOKEN  "04219096209415263812"
+#define REQUEST_FQN            "com.afl.cio.event.CommandEventResponse"
+
+
+
+ /*********************************************/
+
+
+ /***********CIO Monitoring****************/
+
+#define MONITORING_CMD_LENGTH            256
+#define MONITORING_POWER_ON             0700
+#define MONITORING_CONTUNIOUS_RUN       0701
+
+
+
+ /*********************************************/
+
+
+/*********************AT.C********************/
+
+#define GERAN_ONLY 		12 //GSM Digital Cellular Systems (GERAN only)
+#define UTRAN_ONLY 		22 //UTRAN only
+#define NW_3GPP   		25 //3GPP Systems (GERAN and UTRAN and E-UTRAN) (factory default)
+#define EUTRAN_ONLY 	28 //E-UTRAN only
+#define GERAN_UTRAN		29 //GERAN and UTRAN
+#define GERAN_EUTRAN 	30 //GERAN and E-UTRAN
+#define UTRAN_EUTRAN	31 //UTRAN and E-UTRAN
+#define SIGNAL_STRENGTH_CUTOFF_COEFFICIENT	(-113) //UTRAN and E-UTRAN
+#define MAX_AT_CMD_LENGTH	160
+
+ /*********************************************/
 /*
  * CIO Portal Command Identifiers.
 */
@@ -89,8 +139,39 @@
 #define EXECUTE_AT_CMD      1106
 #define GET_FIREWALL        1107
 #define SET_FIREWALL        1108
-#define PERFORM_REBOOT      1109
+#define CUSTOM_COMMAND      1109
 
+
+/*
+ * CIO Portal Sub Command Identifiers
+ */
+
+#define SOFT_REBOOT         300
+#define GET_DEVICE_STATUS   301
+
+/*
+ * Interface types 
+ */ 
+
+#define WWAN                (0x0001)
+#define WAN                 (0x0002)
+#define LAN                 (0x0004) 
+ 
+/*
+ * Timer variable
+ */  
+ 
+static kaa_time_t last_checkin_time; 
+static kaa_time_t last_interface_status_check_time; 
+
+
+#define CIO_CHECKIN_TIMEOUT     							3600 /* Device Checkin Timeout in Sec*/
+#define CIO_INTERFACE_STATUS_CHECK_TIMEOUT     				120 /* Device Interface status Check Timeout in Sec*/
+
+/*
+ * Forward Functions 
+ */  
+ 
 #define dprint(TAG, ...) \
             do { if (DEBUG) fprintf(stderr, "[CIO] : " TAG, ##__VA_ARGS__); } while (0)
             
