@@ -100,9 +100,14 @@ unsigned int device_reboot_event(void)
     kaa_cio_event_class_family_reboot_event_create();
 
     
+   #ifdef EMULATOR
+    tx_event_data->device_id = kaa_string_copy_create(emulatedImei);
+    dprint("IMEI: %s\n",emulatedImei);
+    #else
     char IMEI[LOG_BUF_SZ] = {};
     sprintf(IMEI,"%s",get_device_imei());
     tx_event_data->device_id = kaa_string_copy_create(IMEI);
+    #endif
 
 	get_time(cTime);
     tx_event_data->timestamp = kaa_string_copy_create(cTime);
@@ -142,10 +147,16 @@ unsigned int device_alert_event(char* alert_name,char* trigger_value,char* descr
 	kaa_cio_event_class_family_alert_event_t * tx_event_data =
     kaa_cio_event_class_family_alert_event_create();
 
+
+    
+    #ifdef EMULATOR
+    tx_event_data->device_id = kaa_string_copy_create(emulatedImei);
+    dprint("IMEI: %s\n",emulatedImei);
+    #else
     char IMEI[LOG_BUF_SZ] = {};
     sprintf(IMEI,"%s",get_device_imei());
     tx_event_data->device_id = kaa_string_copy_create(IMEI);
-    
+    #endif
     
 
     get_time(cTime);
@@ -283,10 +294,10 @@ unsigned int device_check_in_event(void)
 
     tx_event_data->param1 = kaa_string_move_create("NULL", NULL);
     tx_event_data->param2 = kaa_string_move_create("NULL", NULL);
-
-    kaa_event_block_id trx_id = 0;
-    kaa_error_t error_code = kaa_event_create_transaction(kaa_client_get_context(get_client())->event_manager, &trx_id);
-    KAA_RETURN_IF_ERR(error_code);
+    kaa_error_t error_code ;
+    // kaa_event_block_id trx_id = 0;
+    // error_code = kaa_event_create_transaction(kaa_client_get_context(get_client())->event_manager, &trx_id);
+    // KAA_RETURN_IF_ERR(error_code);
 
     error_code = kaa_event_manager_send_kaa_cio_event_class_family_device_check_in_event(
     kaa_client_get_context(get_client())->event_manager,tx_event_data,NULL );
@@ -306,8 +317,8 @@ unsigned int device_check_in_event(void)
         kaa_data_destroy(tx_event_data);
     }
    
-    error_code = kaa_event_finish_transaction(kaa_client_get_context(get_client())->event_manager, trx_id);
-    KAA_RETURN_IF_ERR(error_code); 
+    // error_code = kaa_event_finish_transaction(kaa_client_get_context(get_client())->event_manager, trx_id);
+    // KAA_RETURN_IF_ERR(error_code); 
     return 0;
 }
 
@@ -336,9 +347,9 @@ unsigned int check_device_alerts(void){
     if((current_interface_states & WWAN) != (previous_interface_states & WWAN)){
         dprint("WWAN Alert ................\n");
         if((current_interface_states & WWAN)){
-            device_alert_event("Interface_Up","NULL","WWAN");  
+            device_alert_event(INT_STATE_CHANGE,"Up","WWAN");  
       } else {
-            device_alert_event("Interface_Down","NULL","WWAN"); 
+            device_alert_event(INT_STATE_CHANGE,"Down","WWAN"); 
       }
         
         
@@ -347,18 +358,18 @@ unsigned int check_device_alerts(void){
     if((current_interface_states & WAN) != (previous_interface_states & WAN)){
           dprint("WAN Alert ................\n");
         if((current_interface_states & WAN)){
-            device_alert_event("Interface_Up","NULL","WAN");  
+            device_alert_event(INT_STATE_CHANGE,"Up","WAN");  
         } else {
-            device_alert_event("Interface_Down","NULL","WAN"); 
+            device_alert_event(INT_STATE_CHANGE,"Down","WAN"); 
         }
      
     }
     if((current_interface_states & LAN) != (previous_interface_states & LAN)){
           dprint("LAN Alert ................\n");
         if((current_interface_states & LAN)){
-            device_alert_event("Interface_Up","NULL","LAN");  
+            device_alert_event(INT_STATE_CHANGE,"Up","LAN");  
         } else {
-            device_alert_event("Interface_Down","NULL","LAN"); 
+            device_alert_event(INT_STATE_CHANGE,"Down","LAN"); 
         }
        
     }

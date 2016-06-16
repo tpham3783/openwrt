@@ -153,8 +153,8 @@ unsigned int cio_notification_response(void *context, char* result,char* respons
         kaa_data_destroy(notificaton_tx_event);
     }
    
-    error_code = kaa_event_finish_transaction(kaa_client_get_context(get_client())->event_manager, trx_id);
-    KAA_RETURN_IF_ERR(error_code); 
+    // error_code = kaa_event_finish_transaction(kaa_client_get_context(get_client())->event_manager, trx_id);
+    // KAA_RETURN_IF_ERR(error_code); 
     process_request(response);
     return (0);
     

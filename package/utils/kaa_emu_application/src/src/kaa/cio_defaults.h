@@ -20,12 +20,12 @@
  * Hard-coded Kaa log entry body.
  */
 
-#define KAA_DEBUG "KAA_DEBUG"
-#define KAA_ERROR "KAA_ERROR"
-#define KAA_FATAL "KAA_FATAL"
-#define KAA_INFO "KAA_INFO"
-#define KAA_TRACE "KAA_TRACE"
-#define KAA_WARN "KAA_WARN"
+#define KAA_DEBUG 	"KAA_DEBUG"
+#define KAA_ERROR 	"KAA_ERROR"
+#define KAA_FATAL 	"KAA_FATAL"
+#define KAA_INFO 	"KAA_INFO"
+#define KAA_TRACE 	"KAA_TRACE"
+#define KAA_WARN 	"KAA_WARN"
 
 
 /*
@@ -112,6 +112,16 @@
 
  /*********************************************/
 
+/***********CIO Alert****************/
+ #define DVC_STATE_CHANGE		"DVC_STATE_CHANGE"
+ #define INT_STATE_CHANGE		"INT_STATE_CHANGE"
+ #define CFG_BACKUP				"CFG_BACKUP"
+ #define CFG_RESTORE			"CFG_RESTORE"
+ #define FW_UPGRADE				"FW_UPGRADE"
+ #define DATA_THESHOLD_BREACH	"DATA_THESHOLD_BREACH"
+
+ /*********************************************/
+
 
 /*********************AT.C********************/
 
@@ -122,7 +132,7 @@
 #define GERAN_UTRAN		29 //GERAN and UTRAN
 #define GERAN_EUTRAN 	30 //GERAN and E-UTRAN
 #define UTRAN_EUTRAN	31 //UTRAN and E-UTRAN
-#define SIGNAL_STRENGTH_CUTOFF_COEFFICIENT	(-113) //UTRAN and E-UTRAN
+#define SIGNAL_STRENGTH_CUTOFF_COEFFICIENT	(-113) 
 #define MAX_AT_CMD_LENGTH	160
 
  /*********************************************/
@@ -141,6 +151,7 @@
 #define SET_FIREWALL        1108
 #define CUSTOM_COMMAND      1109
 
+#define MODEM_FW_UPDATE     1110
 
 /*
  * CIO Portal Sub Command Identifiers

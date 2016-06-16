@@ -254,7 +254,13 @@ int sys_upgrade(unsigned int operation)
     }
     if(ENABLE_CRITICAL_COMMANDS){
         system(cmd);
+
+        dprint("Initiating Reboot\n");
+        sleep(SAFE_SLEEP_TIME_SEC);
+        
     }
+
+    system("reboot");
     return 0;
 
 }
@@ -282,18 +288,23 @@ int download_file( char *url,char *outfilename,char *status)
             curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
             curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
         }
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curlErrorMessage);
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 90L); //in seconds
          /* complete within 'n' seconds */
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, 300L);
         curl_easy_setopt(curl, CURLOPT_URL, url);
+
+
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
         res = curl_easy_perform(curl);
+       
         if(res != CURLE_OK) {
 
-            snprintf(status,127,"Failed:%s:%s",curl_easy_strerror(res),curlErrorMessage);
+           snprintf(status,127,"Failed:%s",curlErrorMessage);
             curl_easy_cleanup(curl);
             fclose(fp);
             return 1;

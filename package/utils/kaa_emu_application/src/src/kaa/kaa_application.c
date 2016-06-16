@@ -59,15 +59,19 @@ char device_type[DEVICE_TYPE_LEN] = {};
  * Log records
  */
 char emulatedImei[16] = {};
- 
+static char reboot_flag=0;
 char log_record_id[KAA_LOGRECORD_SIZE] = {}; 
 char log_record_message[EVENT_RESPONSE_SIZE] = {};
 
 static void emu_device_timer_function(void *context)
 {
     
+    if(!reboot_flag){
+
+       device_reboot_event();
+       reboot_flag=1;
+    }
     
-       
     kaa_time_t checkin_interval = KAA_TIME() - last_checkin_time;
 
     if (checkin_interval >= CIO_CHECKIN_TIMEOUT) {
@@ -84,6 +88,8 @@ static void emu_device_timer_function(void *context)
         last_interface_status_check_time = KAA_TIME();
         check_device_alerts();
     }
+
+
 
    
 }
@@ -109,11 +115,22 @@ void on_notification(void *context, uint64_t *topic_id, kaa_notification_t *noti
     memset(log_record_message,'\0',sizeof(log_record_message));
     ret = parse_notification(notification, log_record_message);
 
-    sprintf(r_result,"%s",KAA_SUCCESS);
+   
+    if((strstr(log_record_message, "Failed"))||(strstr(log_record_message, "Error"))){
+
+      sprintf(r_result,"%s",KAA_FAILED);
+
+    } else {
+      
+     sprintf(r_result,"%s",KAA_SUCCESS); 
+    }
+    
+
     sprintf(r_response,"%s",log_record_message);
     sprintf(r_cmdID,"%s",log_record_id);
 
     cio_notification_response(context,r_result,r_response,r_cmdID);
+
 
     //system_health_update();
     
@@ -163,7 +180,9 @@ int main(int argc, char *argv[])
 
 #ifdef EMULATOR
     dprint("EMULATOR\n");
+    
 #else
+
     dprint("DEVICE\n");
     system_powerON();
 #endif

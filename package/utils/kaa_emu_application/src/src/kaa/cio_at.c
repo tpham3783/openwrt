@@ -175,12 +175,17 @@ char *get_device_type(char* device_type)
 unsigned int get_firmware_version(char* openwrt_version)
 {
     char version[8] = {};
+
+    #ifdef EMULATOR
+    sprintf(openwrt_version,"v0.01.em");
+    #else
     FILE *handler = fopen("/etc/openwrt_version", "r");
     if (handler){
         fgets(version, sizeof(version), handler);
         strcpy(openwrt_version, version);
         pclose(handler);
     }
+    #endif
     return 0;
 }
 unsigned int get_time(char* cTime){
@@ -193,7 +198,13 @@ unsigned int get_time(char* cTime){
 
 unsigned int get_phoneNumber(char* phoneNumber){
 
+    #ifdef EMULATOR
+    sprintf(phoneNumber,"+919999999999");
+    return(0);
+    #else
     return (execute_system_command("at.sh AT+CNUM=?| grep '+CNUM:' | cut -d, -f2 | awk '{ print $1}'",NULL,phoneNumber));
+    #endif
+
 }
 
 unsigned int get_system_uptime(char* system_uptime)
@@ -293,31 +304,31 @@ unsigned int get_mode(char* mode)
     switch(iMode)
     {
         case GERAN_ONLY:
-        strcpy(mode,"GERAN_ONLY");
+        strcpy(mode,"2G");
         break;
 
         case UTRAN_ONLY:
-        strcpy(mode,"UTRAN_ONLY");
+        strcpy(mode,"3G");
         break;
 
         case NW_3GPP:
-        strcpy(mode,"3GPP");
+        strcpy(mode,"3G LTE");
         break;
 
         case EUTRAN_ONLY:
-        strcpy(mode,"EUTRAN_ONLY");
+        strcpy(mode,"HSDPA");
         break;
 
         case GERAN_UTRAN:
-        strcpy(mode,"GERAN AND UTRAN");
+        strcpy(mode,"2G/3G");
         break;
 
         case GERAN_EUTRAN:
-        strcpy(mode,"GERAN AND EUTRAN");
+        strcpy(mode,"2G/3G/LTE");
         break;
 
         case UTRAN_EUTRAN:
-        strcpy(mode,"UTRAN AND EUTRAN");
+        strcpy(mode,"3G/LTE");
         break;
 
         default:
@@ -334,7 +345,12 @@ unsigned int get_mode(char* mode)
 
 unsigned int get_iccid(char* iccid)
 {
+     #ifdef EMULATOR
+    sprintf(iccid,"8991101200003204xxx");
+    return(0);
+    #else
     return (execute_system_command("at.sh AT+ICCID | grep '+ICCID:' | cut -d: -f2 | awk '{ print $1}'",NULL,iccid));
+    #endif
 }
 
 unsigned int get_snr(char* snr)
@@ -373,7 +389,7 @@ unsigned int get_signal_strength(char* signal_strength)
 unsigned int get_apn(char* apn)
 {
     
-     return (execute_system_command("at.sh AT+CGDCONT? | grep '+CGDCONT:' | cut -d: -f3 | awk '{print $1}'",NULL,apn));
+     return (execute_system_command("at.sh AT+CGDCONT? | grep '+CGDCONT:' | cut -d: -f2 | cut -d, -f3 | awk '{print $1}'",NULL,apn));
 }
 
 

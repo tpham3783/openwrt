@@ -4,13 +4,13 @@
 */
 #include "cio_fw_update.h"
 #include "cio_notification_manager.h"
-
+#include "cio_lt_1xxx.h"
 #include "cio_defaults.h"
 #include "cio_at.h"
 #include "time.h"
 
 #include "cio_event.h"
- 
+ extern char emulatedImei[16];
 void clear_line_character(char* str,char* chr,unsigned int str_len);
 int parse_notification(kaa_notification_t *notification, char* status)
 {
@@ -19,6 +19,9 @@ int parse_notification(kaa_notification_t *notification, char* status)
     kaa_string_t *param1value = NULL;
     kaa_string_t *param2value = NULL;
     memset(status,'\0',LOG_BUF_SZ);
+
+    Parameters_t params = {}, *pParams = &params;
+
     switch(command) {
         case UPDATE_FW:
             dprint("Firmware update command received\n");           
@@ -79,12 +82,32 @@ int parse_notification(kaa_notification_t *notification, char* status)
             param1value = (kaa_string_t *)((kaa_notification_t *)notification)->value1->data;
             param2value = (kaa_string_t *)((kaa_notification_t *)notification)->value2->data;
             set_firewall_settings((char*)param1value,(char*)param2value,NULL);
-            strcpy(status,"SUCCESS");
+            strcpy(status,"Success:Firewall_Set");
             break;
                 
         case CUSTOM_COMMAND:
             execute_custom_command(notification,status);
-            break;    
+            break;
+
+        case MODEM_FW_UPDATE:
+
+            dprint("Modem Firmware Upgrade Command Received\n");
+
+            pParams->os = (char *)((kaa_notification_t *)notification)->param1->data;
+            pParams->device_at = (char *)((kaa_notification_t *)notification)->value1->data;
+            pParams->device_boot = (char *)((kaa_notification_t *)notification)->param2->data;
+            pParams->upgrade = (char *)((kaa_notification_t *)notification)->value2->data;
+            pParams->directory = "/root";
+            pParams->kernel = (char *)((kaa_notification_t *)notification)->param3->data;
+            pParams->filesys = (char *)((kaa_notification_t *)notification)->value3->data;
+            pParams->modem_fw = (char *)((kaa_notification_t *)notification)->param4->data;
+            pParams->password = (char *)((kaa_notification_t *)notification)->value4->data;
+            
+            dprint("Going to upgrade Modem.......\nOS:%s\ndevice_at:%s\ndevice_boot:%s\nupgrade:%s\ndirectory:%s\nkernel:%s\nfilesys:%s\nmodem_fw:%s\npassword:%s\n ",
+                pParams->os,pParams->device_at,pParams->device_boot,pParams->upgrade,pParams->directory,pParams->kernel,
+                pParams->filesys,pParams->modem_fw,pParams->password);
+            LT_1XXX_Upgrade(pParams);
+            break;     
             
         default:
             ret = FAILED;
@@ -157,8 +180,14 @@ unsigned int get_current_status(char* status)
     get_mode(mode);
     // clear_line_character(mode,"\n",LOG_BUF_SZ);
         
+  
     char IMEI[LOG_BUF_SZ] = {};
+    #ifdef EMULATOR
+    sprintf(IMEI,"%s",emulatedImei);
+    dprint("IMEI: %s\n",emulatedImei);
+    #else
     sprintf(IMEI,"%s",get_device_imei());
+    #endif
 
     long product_id = get_product_id();
     
@@ -178,11 +207,14 @@ unsigned int get_current_status(char* status)
     get_apn(apn);
     // clear_line_character(apn,"\n",LOG_BUF_SZ);
 
+    char phone_number[LOG_BUF_SZ]={};
+    get_phoneNumber(phone_number);
+
     kaa_time_t rawtime = KAA_TIME();
     
-    sprintf(status,"%s|%d|%s|%d|%s|%d|%s|%s|%s|%s|%s|%ld|%s|%s|%s|%s|%lu",
+    sprintf(status,"%s|%d|%s|%d|%s|%d|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%lu",
         wwanip,wwan_status,wanip,wan_status,lanip,lan_status,firmware_version,
-        system_uptime, wwan_data_usage,mode,IMEI,product_id,iccid,snr,signal_strength,apn,(unsigned long)rawtime);
+        system_uptime, wwan_data_usage,mode,IMEI,phone_number,iccid,snr,signal_strength,apn,(unsigned long)rawtime);
     // sprintf(status,"%s|%s|%s|%s|%s|%s|%ld|%s|%s|%s|%s|%lu"
     //     ,status,firmware_version,system_uptime, wwan_data_usage,mode,IMEI,product_id,iccid,snr,signal_strength,apn,(unsigned long)rawtime);
     
@@ -321,7 +353,7 @@ int data_backup(char *url, unsigned int Upload_data,char *status)
         if(res != CURLE_OK) {
           // fprintf(stderr, "curl_easy_perform() failed: %s\n",
           //         curl_easy_strerror(res));
-          snprintf(status,LOG_BUF_SZ, "Failed:%s:%s",curl_easy_strerror(res),curlErrorMessage);
+          snprintf(status,LOG_BUF_SZ, "%s:%s",curl_easy_strerror(res),curlErrorMessage);
         } else {
             sprintf(status,"Success:File Uploaded:%s",backup_file_name);
         }      
@@ -416,7 +448,7 @@ unsigned int set_firewall_settings(char *firewall_setting,char *hostname,char *s
     }
 
     system("uci commit");
-    system("/etc/init.d/firewall restart");
+    
 
 
     // index = ((unsigned int)(strstr(t_data,"Hostname:"))-(unsigned int)t_data) + (unsigned int)sizeof("Hostname:");
@@ -433,8 +465,7 @@ unsigned int set_firewall_settings(char *firewall_setting,char *hostname,char *s
     sprintf(t_data,"uci set system.@system[0].hostname=%s",hostname);
     system(t_data);
     system("uci commit");
-    system("/etc/init.d/boot restart");
-    system("echo $(uci get system.@system[0].hostname) > /proc/sys/kernel/hostname");
+    
     
     #endif 
     return 0;
@@ -598,6 +629,7 @@ int process_request(char* log_record_message)
 
         dprint("Initiating Config Update\n");
         sys_upgrade(CONFIG_UPDATE);
+        
 
     }else if(strcmp(log_record_message,"Initiating_Reboot") == 0){
 
@@ -611,6 +643,15 @@ int process_request(char* log_record_message)
        dprint("Factory Defaulted and Rebooting\n");
        
        factory_reset();
+
+    }else if(strcmp(log_record_message,"Success:Firewall_Set")==0){
+
+        dprint("Network Restarting\n");
+
+        system("/etc/init.d/firewall restart");
+        system("/etc/init.d/boot restart");
+        system("echo $(uci get system.@system[0].hostname) > /proc/sys/kernel/hostname");
+        factory_reset();
 
     }
 

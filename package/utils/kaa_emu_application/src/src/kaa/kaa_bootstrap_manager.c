@@ -514,10 +514,7 @@ kaa_error_t kaa_bootstrap_manager_on_access_point_failed(kaa_bootstrap_manager_t
         access_point = (kaa_access_point_t *)kaa_list_get_data(operations_access_points->current_access_points);
 
         if (!access_point)
-        {
             execute_failover = true;
-
-        }
     }
     if (execute_failover) {
         kaa_bootstrap_manager_schedule_failover(self, prev_access_point, access_point, protocol_id, type,
