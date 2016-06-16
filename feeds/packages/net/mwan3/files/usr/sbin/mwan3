@@ -1,4 +1,6 @@
 #!/bin/sh
+# Patch bug
+[ -f /usr/bin/ip ] || ln -s /usr/sbin/ip /usr/bin/ip
 
 [ -x /usr/bin/ip ] || exit 4
 [ -x /usr/sbin/ipset ] || exit 5
