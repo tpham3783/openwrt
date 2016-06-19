@@ -4,7 +4,7 @@
 */
 #include "cio_fw_update.h"
 #include "cio_notification_manager.h"
-#include "cio_lt_1xxx.h"
+#include "cio_modem_fw_update.h"
 #include "cio_defaults.h"
 #include "cio_at.h"
 #include "time.h"
@@ -92,21 +92,8 @@ int parse_notification(kaa_notification_t *notification, char* status)
         case MODEM_FW_UPDATE:
 
             dprint("Modem Firmware Upgrade Command Received\n");
-
-            pParams->os = (char *)((kaa_notification_t *)notification)->param1->data;
-            pParams->device_at = (char *)((kaa_notification_t *)notification)->value1->data;
-            pParams->device_boot = (char *)((kaa_notification_t *)notification)->param2->data;
-            pParams->upgrade = (char *)((kaa_notification_t *)notification)->value2->data;
-            pParams->directory = "/root";
-            pParams->kernel = (char *)((kaa_notification_t *)notification)->param3->data;
-            pParams->filesys = (char *)((kaa_notification_t *)notification)->value3->data;
-            pParams->modem_fw = (char *)((kaa_notification_t *)notification)->param4->data;
-            pParams->password = (char *)((kaa_notification_t *)notification)->value4->data;
-            
-            dprint("Going to upgrade Modem.......\nOS:%s\ndevice_at:%s\ndevice_boot:%s\nupgrade:%s\ndirectory:%s\nkernel:%s\nfilesys:%s\nmodem_fw:%s\npassword:%s\n ",
-                pParams->os,pParams->device_at,pParams->device_boot,pParams->upgrade,pParams->directory,pParams->kernel,
-                pParams->filesys,pParams->modem_fw,pParams->password);
-            LT_1XXX_Upgrade(pParams);
+            Modem_Upgrade(notification);
+           
             break;     
             
         default:

@@ -179,6 +179,8 @@ static kaa_time_t last_interface_status_check_time;
 #define CIO_CHECKIN_TIMEOUT     							3600 /* Device Checkin Timeout in Sec*/
 #define CIO_INTERFACE_STATUS_CHECK_TIMEOUT     				120 /* Device Interface status Check Timeout in Sec*/
 
+#define NUM_MODEM_FW_ITERATION	(5)    		/* Modem Firmware Update Try iteration*/
+//#define BUFSIZ (64)
 /*
  * Forward Functions 
  */  

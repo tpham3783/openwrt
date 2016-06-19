@@ -3,19 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-#include "cio_lt_1xxx.h"
-#include <stdlib.h>
-#include <string.h>
-//#include <error.h>
-#include <sys/file.h>
-#include <unistd.h>
+#include "cio_modem_fw_update.h"
 
 #define decryption "openssl smime -decrypt -in %s -binary -inform DEM -inkey private.pem -out %s"
 #define redirect " 2>&1"
-#define BUFSIZ  255
-
-Bool execute(char *cmd);
-Bool doFileExists(char * fileName);
 
 Bool LT_1XXX_Upgrade(Parameters_t *param) {
 
@@ -43,8 +34,8 @@ Bool LT_1XXX_Upgrade(Parameters_t *param) {
 
     //Decrypt upgrade script
     snprintf(decrypt, sizeof (decrypt), decryption, (char *) absEFile, (char *) absDFile);
-    if (execute((char *) decrypt) == false) {
-        if (doFileExists((char *) absDFile) == true) {
+    if (Execute((char *) decrypt) == false) {
+        if (DoFileExists((char *) absDFile) == true) {
             if ((ret = remove(absDFile)) != 0) {
                 fprintf(stderr, "Failed to remove %s : %s\n", (char *) absDFile, strerror(errno));
             }
@@ -53,7 +44,7 @@ Bool LT_1XXX_Upgrade(Parameters_t *param) {
     }
 
     snprintf(chmod, sizeof (chmod), "chmod a+x %s", (char *) absDFile);
-    if (execute((char *) chmod) == false) {
+    if (Execute((char *) chmod) == false) {
         fprintf(stderr, "Can not set the permission of %s : %s\n", (char *) absDFile, strerror(errno));
     }
 
@@ -85,7 +76,7 @@ Bool LT_1XXX_Upgrade(Parameters_t *param) {
             (param->modem_fw == NULL) ||
             (param->password == NULL)) {
         fprintf(stderr, "%s : passed a NULL parameter!!!\n", (char *) __FUNCTION__);
-        if (doFileExists((char *) absDFile) == true) {
+        if (DoFileExists((char *) absDFile) == true) {
             if ((ret = remove(absDFile)) != 0) {
                 fprintf(stderr, "Failed to remove %s : %s\n", (char *) absDFile, strerror(errno));
             }
@@ -94,8 +85,8 @@ Bool LT_1XXX_Upgrade(Parameters_t *param) {
     }
 
     //Decrypt upgrade script
-    if (execute((char *) cmd) == false) {
-        if (doFileExists((char *) absDFile) == false) {
+    if (Execute((char *) cmd) == false) {
+        if (DoFileExists((char *) absDFile) == false) {
             if ((ret = remove(absDFile)) != 0) {
                 fprintf(stderr, "Failed to remove %s : %s\n", (char *) absDFile, strerror(errno));
             }
@@ -104,29 +95,13 @@ Bool LT_1XXX_Upgrade(Parameters_t *param) {
     }
 
     //If we got here then we should have upgraded the modem
-    if (doFileExists((char *) absDFile) == true) {
+    if (DoFileExists((char *) absDFile) == true) {
         memset(cmd, 0, sizeof (cmd));
         snprintf(cmd, sizeof (cmd), "rm -rf %s", (char *) absDFile);
-        execute((char *) cmd);
+        Execute((char *) cmd);
     }
 
     return true;
 }
 
-Bool execute(char *cmd) {
-    if(system((char *) cmd) == -1)
-    {
-        return false;
-    }
-    return true;
-}
 
-Bool doFileExists(char * fileName) {
-    struct stat buf;
-    int i = stat(fileName, &buf);
-    // File found
-    if (i == 0) {
-        return true;
-    }
-    return false;
-}

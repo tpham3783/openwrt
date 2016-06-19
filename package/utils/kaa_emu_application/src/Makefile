@@ -12,7 +12,7 @@ INCS = -I./src/ \
 		-Isrc/kaa/gen/ \
 		-Isrc/kaa/kaa_protocols/kaa_tcp/ 
 		
-#-I/projects/ap102b.telit/staging_dir/toolchain-mipsel_24kec+dsp_gcc-4.8-linaro_musl-1.1.10/include/ \
+
 
 
 SRCS1=$(filter-out src/kaa/platform-impl/common/sha.c,$(wildcard src/kaa/platform-impl/common/*.c))  \
