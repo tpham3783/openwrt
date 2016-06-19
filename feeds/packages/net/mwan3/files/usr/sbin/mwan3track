@@ -25,7 +25,9 @@ while true; do
 		fi
 	done
 		
-	if [ $host_up_count -lt $3 ]; then
+	# Pham, fix bug b/c original wont work with 1 ping test
+	if [ $host_up_count -lt 1 ]; then
+	#if [ $host_up_count -lt $3 ]; then
 		let score--
 
 		if [ $score -lt $8 ]; then score=0 ; fi
