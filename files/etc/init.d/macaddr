@@ -1,0 +1,33 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+. /lib/functions.sh
+. /lib/ramips.sh
+. /lib/functions/uci-defaults.sh
+. /lib/functions/system.sh
+
+PROG=/usr/sbin/telnetd
+
+
+START=19
+STOP=19
+
+boot() {
+	# Check if factory has been programmed
+	chipid=$(hexdump -x -n 2 /dev/mtd2);
+	if ! echo "$chipid" | grep "7620" ; then
+		# Factory settings hasn't been programed, start telnet to enable factory program mode.
+                "$PROG" -F -l /bin/login.sh &
+	else
+		# Import macaddresses from factory MTD 
+		current_lan=$(uci get network.lan.macaddr)
+		current_wan=$(uci get network.wan.macaddr)
+		[ -z "$current_lan" ] && ucidef_set_interface_macaddr lan "$(mtd_get_mac_binary factory 40)"
+		[ -z "$current_wan" ] && ucidef_set_interface_macaddr wan "$(mtd_get_mac_binary factory 46)"
+		uci commit
+	fi
+}
+
+
+stop() {
+	echo -n "";
+}
