@@ -14,11 +14,22 @@ config interface 'wan'
 	option down '1'
 	option up '1'
 
-config interface 'wwan1'
+config interface 'wwan0'
 	option enabled '1'
 	list track_ip '8.8.8.8'
 	list track_ip '208.67.220.220'
 	option reliability '2'
+	option count '1'
+	option timeout '5'
+	option interval '120'
+	option down '1'
+	option up '1'
+
+config interface 'wwan1'
+	option enabled '1'
+	list track_ip '8.8.8.8'
+	list track_ip '208.67.220.220'
+	option reliability '3'
 	option count '1'
 	option timeout '5'
 	option interval '120'
@@ -35,6 +46,16 @@ config member 'wan_m2_w3'
 	option metric '2'
 	option weight '3'
 
+config member 'wan0_m1_w2'
+	option interface 'wwan0'
+	option metric '1'
+	option weight '2'
+
+config member 'wan0_m2_w2'
+	option interface 'wwan0'
+	option metric '2'
+	option weight '2'
+
 config member 'wan2_m1_w2'
 	option interface 'wwan1'
 	option metric '1'
@@ -48,6 +69,9 @@ config member 'wan2_m2_w2'
 config policy 'wan_only'
 	list use_member 'wan_m1_w3'
 
+config policy 'wan0_only'
+	list use_member 'wan0_m1_w2'
+
 config policy 'wan2_only'
 	list use_member 'wan2_m1_w2'
 
@@ -59,9 +83,15 @@ config policy 'wan_wan2'
 	list use_member 'wan_m1_w3'
 	list use_member 'wan2_m2_w2'
 
+config policy 'wan_wan0_wan2'
+	list use_member 'wan_m1_w3'
+	list use_member 'wan0_m2_w2'
+	list use_member 'wan2_m2_w2'
+
 config policy 'wan2_wan'
 	list use_member 'wan_m2_w3'
 	list use_member 'wan2_m1_w2'
+
 
 config rule 'https'
 	option sticky '1'
@@ -75,5 +105,5 @@ config rule 'eth_wan'
 
 config rule 'default_rule'
 	option dest_ip '0.0.0.0/0'
-	option use_policy 'wan_wan2'
+	option use_policy 'wan_wan0_wan2'
 
