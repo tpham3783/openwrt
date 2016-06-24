@@ -26,6 +26,11 @@ boot()
 		else
 			uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
 		fi
+                # if we start network via uqmi, it seems improperly reset the route table
+                # and would cause mwan3 to not able to keep track of the cell connection, reset the all network
+                # interfaces allow mwan to keep track of all connections again.
+                sleep 10;
+                /etc/init.d/network restart
 	fi
 	
 }

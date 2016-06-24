@@ -4,18 +4,20 @@
 
 h=$(cat /proc/sys/kernel/hostname)
 if [ "$h" == "AP102B" ]; then
-	[ -f /tmp/.quirk_mc7353 ] && exit 0;
 	# This happens because openwrt is still busy formating JFFS right after sys-upgrade
-	if lsusb | grep "1199:68c0"; then
-		# This must be first boot, mount service maybe running and block LED config. Start LED task
-		[ -f /etc/init.d/led ] && /etc/init.d/led boot
-		at.sh "at!reset"
-		
-		touch /tmp/.quirk_mc7353
-		# wman failover seems to have a problem tracking wan right after sysupgrade
-		mwan3 restart
 
+	[ -f /tmp/.quirk_sysupgrade ] && exit 0;
+
+	# This must be first boot, mount service maybe running and block LED config. Start LED task
+	[ -f /etc/init.d/led ] && /etc/init.d/led boot
+
+	if lsusb | grep "1199:68c0"; then
+		# Special treatment for Sierra Wireless module
+		at.sh "at!reset"
 	fi
+	touch /tmp/.quirk_sysupgrade
+	# wman failover seems to have a problem tracking wan right after sysupgrade
+	mwan3 restart
 fi
 
 

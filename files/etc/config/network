@@ -36,10 +36,9 @@ config switch
 config interface 'wwan0'
 	option ifname 'wwan0'
 	option device '/dev/cdc-wdm0'
-	option proto 'qmi'
+	option proto 'dhcp'
 	option apn 'nxtgenphone'
 	option metric '3'
-	option defaultroute '1'
 	option conntrack '1'
 
 config interface 'wwan1'
