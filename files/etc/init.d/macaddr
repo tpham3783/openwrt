@@ -16,6 +16,7 @@ boot() {
 	chipid=$(hexdump -x -n 2 /dev/mtd2);
 	if ! echo "$chipid" | grep "7620" ; then
 		# Factory settings hasn't been programed, start telnet to enable factory program mode.
+		export FAILSAFE="true";
                 "$PROG" -F -l /bin/login.sh &
 	else
 		# Import macaddresses from factory MTD 
