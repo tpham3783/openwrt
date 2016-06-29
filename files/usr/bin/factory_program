@@ -1,0 +1,31 @@
+#!/bin/sh
+
+if [ $# -eq 0 ]; then
+	echo "Error, missing argument.  Please run with an option"
+	echo "factory_program [enable|disable|status]"
+	exit -1;
+fi
+
+
+option=$1
+
+case "$option" in
+enable)
+	uci set system.@system[0].factory_programming=1
+	uci commit system
+	;;
+disable)
+	uci delete system.@system[0].factory_programming
+	uci commit system
+	;;
+status)
+	uci get system.@system[0].factory_programming || exit 1;
+	exit 0;
+	;;
+*)
+	echo "Invalid option."
+	echo "factory_program [enable|disable|status]"
+	exit 1;
+esac;
+
+exit 0;

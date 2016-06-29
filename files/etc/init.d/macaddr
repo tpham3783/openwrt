@@ -13,8 +13,11 @@ STOP=19
 
 boot() {
 	# Check if factory has been programmed
-	chipid=$(hexdump -x -n 2 /dev/mtd2);
-	if ! echo "$chipid" | grep "7620" ; then
+	chipid=$(hexdump -x -n 2 /dev/mtd2 | cut -d' ' -f5-6);
+	chipid=${chipid:0:4}
+	mac=$(hexdump -s 40 -n 6 /dev/mtd2 | cut -d' ' -f2-4 | sed -e s/\ //g)
+	mac=${mac:0:12}
+	if [ ! "$chipid" == "7620" ] || [ "$mac" == "ffffffffffff" ] || factory_program status &> /dev/null ; then
 		# Factory settings hasn't been programed, start telnet to enable factory program mode.
 		export FAILSAFE="true";
                 "$PROG" -F -l /bin/login.sh &
