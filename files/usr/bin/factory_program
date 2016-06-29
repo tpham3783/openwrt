@@ -3,24 +3,48 @@
 if [ $# -eq 0 ]; then
 	echo "Error, missing argument.  Please run with an option"
 	echo "factory_program [enable|disable|status]"
-	exit -1;
+	exit 1;
 fi
+
+
 
 
 option=$1
 
+
+write_lock(){
+	{
+	dd if=/dev/mtd2 of=/tmp/factory.img
+	printf "L" | dd conv=notrunc of=/tmp/factory.img obs=1 seek=28
+	mtd write /tmp/factory.img factory
+	} &> null;
+}
+
+write_unlock(){
+	{
+	dd if=/dev/mtd2 of=/tmp/factory.img
+	printf "U" | dd conv=notrunc of=/tmp/factory.img obs=1 seek=28
+	mtd write /tmp/factory.img factory
+	} &> /dev/null
+}
+
+
 case "$option" in
 enable)
-	uci set system.@system[0].factory_programming=1
-	uci commit system
+	write_unlock
 	;;
 disable)
-	uci delete system.@system[0].factory_programming
-	uci commit system
+	write_lock
 	;;
 status)
-	uci get system.@system[0].factory_programming || exit 1;
-	exit 0;
+	# Status signature in factory partitions
+	s=$(dd if=/dev/mtd2 skip=28 bs=1 count=1 2> /dev/null)
+	if [ "$s" == "U" ]; then 
+		echo "enabled";
+		exit 0;
+	fi
+	echo "disabled"
+	exit 1;
 	;;
 *)
 	echo "Invalid option."
