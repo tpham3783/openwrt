@@ -22,7 +22,7 @@ boot()
 		if [[ "$autoconnect" == "1" ]]; then
 			uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
 			uqmi -d /dev/cdc-wdm0 --start-network internet --autoconnect
-			udhcpc -i wwan0 -p /var/run/udhcpc-wwan0.pid
+#			udhcpc -i wwan0 -p /var/run/udhcpc-wwan0.pid
 		else
 			uqmi -d /dev/cdc-wdm0 --stop-network 0xffffffff --autoconnect
 		fi
