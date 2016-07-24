@@ -92,17 +92,6 @@ config policy 'wan2_wan'
 	list use_member 'wan_m2_w3'
 	list use_member 'wan2_m1_w2'
 
-
-config rule 'https'
-	option sticky '1'
-	option dest_port '443'
-	option proto 'tcp'
-	option use_policy 'balanced'
-
-config rule 'eth_wan'
-	option dest_ip '8.8.4.4'
-	option use_policy 'wan_only'
-
 config rule 'default_rule'
 	option dest_ip '0.0.0.0/0'
 	option use_policy 'wan_wan0_wan2'
