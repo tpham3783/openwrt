@@ -2,7 +2,12 @@
 
 apn=$(uci get modem.@modem[0].apn)
 if [[ -z "$apn" ]]; then
-	apn=$(at.sh at+cgdcont? | sed -n '1p' | sed 's/"//g' | sed 's/,/ /g' | awk '{print $4}')
+	module=$(uci get system.@system[0].hostname)
+	if [[ "$module" == "ER1000-VZ" ]]; then
+		apn=$(at.sh at+cgdcont? | sed -n '1p' | sed 's/"//g' | sed 's/,/ /g' | awk '{print $18}')
+	else
+		apn=$(at.sh at+cgdcont? | sed -n '1p' | sed 's/"//g' | sed 's/,/ /g' | awk '{print $4}')
+	fi
 	uci set modem.@modem[0].apn=$apn
 fi
 
