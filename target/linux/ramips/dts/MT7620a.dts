@@ -72,14 +72,35 @@
 		/* KenC, llllw means WAN on port4, and wllll means WAN on port0 */
 		ralink,port-map = "llllw";
 
-
 		port@5 {
 			status = "okay";
 			phy-mode = "rgmii";
                         ralink,fixed-link = <1000 1 1 1>;
 			//phy-handle = <&phy5>;
 		};
-		
+		/* Pham: Connect directly to the phys on the switch */
+
+
+/*
+		port@4 {
+			status = "okay";
+			compatible = "ralink,mt7620a-gsw-port", "ralink,eth-port";
+			reg = <4>;
+			phy-mode = "rgmii";
+                        ralink,fixed-link = <1000 1 1 1>;
+			//hy-handle = <&phy4>;
+		};
+
+		port@5 {
+			status = "okay";
+			compatible = "ralink,mt7620a-gsw-port", "ralink,eth-port";
+			reg = <5>;
+			phy-mode = "rgmii";
+                        ralink,fixed-link = <1000 1 1 1>;
+			//phy-handle = <&phy3>;
+		};
+*/
+
 		mdio-bus {
 			status = "okay";
 
@@ -108,7 +129,6 @@
                                 phy-mode = "rgmii";
                         };
 		};
-		
 	};
 
 	wmac@10180000 {
@@ -117,7 +137,7 @@
 
 	gsw@10110000 {
 		ralink,port4 = "gmac";
-                mediatek,mt7530 = <1>;  /*zoe add for giga port*/  
+                //mediatek,mt7530 = <1>;  /*zoe add for giga port*/  
 	};
 
 	sdhci@10130000 {
