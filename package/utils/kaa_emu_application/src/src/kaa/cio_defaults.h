@@ -93,8 +93,10 @@
 
 /***********EVENT Generation****************/
 
-#define KAA_USER_ID            "hansolo"
-#define KAA_USER_ACCESS_TOKEN  "04219096209415263812"
+//#define KAA_USER_ID            "hansolo"
+//#define KAA_USER_ACCESS_TOKEN  "04219096209415263812"
+#define KAA_USER_ID            "CIOuserverifier"
+#define KAA_USER_ACCESS_TOKEN  "41465538310519253645"
 #define REQUEST_FQN            "com.afl.cio.event.CommandEventResponse"
 
 
@@ -176,7 +178,7 @@ static kaa_time_t last_checkin_time;
 static kaa_time_t last_interface_status_check_time; 
 
 
-#define CIO_CHECKIN_TIMEOUT     							3600 /* Device Checkin Timeout in Sec*/
+#define CIO_CHECKIN_TIMEOUT     							1800 /* Device Checkin Timeout in Sec*/
 #define CIO_INTERFACE_STATUS_CHECK_TIMEOUT     				120 /* Device Interface status Check Timeout in Sec*/
 
 #define NUM_MODEM_FW_ITERATION	(5)    		/* Modem Firmware Update Try iteration*/
