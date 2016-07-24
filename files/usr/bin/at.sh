@@ -1,3 +1,6 @@
+# Author: Radinet & Toan Pham
+########################################################################
+
 if [ $# -ne 1  ]; then
    #echo Usage: $0 \"AT command\" 
     echo Error
@@ -6,12 +9,23 @@ if [ $# -ne 1  ]; then
 fi
 modem="/dev/ttyACM0"
 
+
+if [ -f $modem ]; then
+  rm $modem 
+  mknod $modem c 166 0
+fi
+
+
 #check if modem is connected
 #check for LT1001 and LT1000
 
 if [ ! -c $modem ]; then
   modem="/dev/ttyUSB2"
   if [ ! -c $modem ]; then
+    if [ -f $modem ]; then
+	rm $modem 
+	mknod /dev/ttyUSB2 c 188 2
+    fi
     echo "No modem detected"
     exit 0
   fi
