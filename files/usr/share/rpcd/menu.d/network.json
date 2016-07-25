@@ -9,12 +9,15 @@
         "view": "network/interfaces",
         "index": 10
     },
+/* Temporarily disable wireless menu item, requested by Reffie, will add feature to selective
+   enable this feature based on CIO product class later on.
     "network/wireless": {
         "title": "Wireless",
         "acls": [ "network" ],
         "view": "network/wireless",
         "index": 20
     },
+*/
     "network/switch": {
         "title": "Switch",
         "acls": [ "network" ],
