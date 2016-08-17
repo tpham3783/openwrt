@@ -161,7 +161,7 @@ int config_restore(char *url, char *checksum,char *status)
                 if(kaa_schema_data_Input.checksum) {
                     free(kaa_schema_data_Input.checksum);
                 }        
-                strcpy(status,"Success:Config_Update");
+                strcpy(status,"Success:Configuration_File_Recieved");
             } else {
                 dprint("Checksum validation Failed\n");
                 if(kaa_schema_data_Input.url) {

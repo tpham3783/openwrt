@@ -95,8 +95,8 @@
 
 //#define KAA_USER_ID            "hansolo"
 //#define KAA_USER_ACCESS_TOKEN  "04219096209415263812"
-#define KAA_USER_ID            "CIOuserverifier"
-#define KAA_USER_ACCESS_TOKEN  "41465538310519253645"
+ #define KAA_USER_ID            "CIOuserverifier"
+ #define KAA_USER_ACCESS_TOKEN  "41465538310519253645"
 #define REQUEST_FQN            "com.afl.cio.event.CommandEventResponse"
 
 
