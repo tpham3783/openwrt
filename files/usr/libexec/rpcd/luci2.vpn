@@ -1,0 +1,29 @@
+#!/bin/sh
+. /usr/share/libubox/jshn.sh
+
+case "$1" in
+	list)
+		echo '{ "statusall": { }, "stop": { }, "start": { }, "restart" : { } }'
+	;;
+	call)
+		case "$2" in
+			statusall)
+				s=$(ipsec statusall 2> /dev/null)
+				echo "{ \"stdout\": \"$s\" }"
+			;;
+			stop)
+				s=$(ipsec stop 2> /dev/null)
+				echo "{ \"stdout\": \"$s\" }"
+			;;
+			start)
+				[ -f /etc/init.d/ipsec ] && /etc/init.d/ipsec boot
+				s=$(ipsec start 2> /dev/null)
+				echo "{ \"stdout\": \"$s\" }"
+			;;
+			restart)
+				s=$(ipsec restart 2> /dev/null)
+				echo "{ \"stdout\": \"$s\" }"
+			;;
+		esac
+	;;
+esac

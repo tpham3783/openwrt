@@ -72,11 +72,15 @@
 		/* KenC, llllw means WAN on port4, and wllll means WAN on port0 */
 		ralink,port-map = "llllw";
 
+		/*
+		ps: Enable fixlink on the SOC switch creates periodic network reset
+		*/
+
+		// ps: this is the link that connects to the mt7520's trunk port
 		port@5 {
 			status = "okay";
 			phy-mode = "rgmii";
                         ralink,fixed-link = <1000 1 1 1>;
-			//phy-handle = <&phy5>;
 		};
 		/* Pham: Connect directly to the phys on the switch */
 
@@ -137,7 +141,9 @@
 
 	gsw@10110000 {
 		ralink,port4 = "gmac";
-                //mediatek,mt7530 = <1>;  /*zoe add for giga port*/  
+		// comment out to enable gigibit ethernet over mii
+		// add to enable external switch, but limitted to 100Mbps
+                mediatek,mt7530 = <1>;  /*zoe add for giga port*/  
 	};
 
 	sdhci@10130000 {

@@ -55,5 +55,11 @@
         "acls": [ "modem" ],
         "view": "network/modem",
         "index": 90
+    },
+    "network/vpn": {
+        "title": "VPN",
+        "acls": [ "vpn" ],
+        "view": "network/vpn",
+        "index": 91
     }
 }
