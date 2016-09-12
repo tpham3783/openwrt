@@ -23,10 +23,10 @@ case "$1" in
 				module=$(uci get system.@system[0].hostname)
 				if [ "$module" == "ER1000-VZ" ]; then
 				   # On Verizon, default data profile is 3
-				   result=$(at.sh AT+CGDCONT=1,\"IP\",\"$apn\")
-				   result=$(at.sh AT+CGDCONT=3,\"IP\",\"$apn\")
+				   result=$(at.sh AT+CGDCONT=1,\"IPV4V6\",\"$apn\")
+				   result=$(at.sh AT+CGDCONT=3,\"IPV4V6\",\"$apn\")
 				else
-				   result=$(at.sh AT+CGDCONT=1,\"IP\",\"$apn\")
+				   result=$(at.sh AT+CGDCONT=1,\"IPV4V6\",\"$apn\")
 				fi
 				uci set modem.@modem[0].apn=$apn
 				uci commit
