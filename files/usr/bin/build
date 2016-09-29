@@ -1,0 +1,4 @@
+#!/bin/sh
+ver=$(cat /etc/openwrt_version)
+build=$(cat /etc/openwrt_build)
+echo "$ver (Build $build)"
