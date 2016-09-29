@@ -1,0 +1,34 @@
+--- a/drivers/mtd/devices/m25p80.c	2016-09-11 22:39:17.675872159 -0400
++++ b/drivers/mtd/devices/m25p80.c 	2016-09-28 21:54:43.281560530 -0400
+@@ -28,6 +28,8 @@
+ #include <linux/spi/flash.h>
+ #include <linux/mtd/spi-nor.h>
+ 
++#include <linux/reboot.h>
++
+ #define	MAX_CMD_SIZE		6
+ struct m25p {
+ 	struct spi_device	*spi;
+@@ -319,10 +321,21 @@
+ {
+ 	struct m25p	*flash = spi_get_drvdata(spi);
+ 
+-	// zoe: add spi flash reset code
++	printk("m25p80: shutting down memory module\r\n");
++	// zoe: add spi flash reset code, 
++
++	/* Exit 4-byte mode */
+ 	flash->command[0] = 0xe9;
+         spi_write(flash->spi, flash->command, 1);
+ 
++	flash->command[0] = 0x66;  // enable reset
++	spi_write(flash->spi, flash->command, 1);  
++	flash->command[0] = 0x99;  // reset
++	spi_write(flash->spi, flash->command, 1);
++
++	// pham
++	emergency_restart();
++
+ 	/* Clean up MTD stuff. */
+ 	return mtd_device_unregister(&flash->mtd);
+ }
