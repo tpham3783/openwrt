@@ -1,0 +1,93 @@
+rt2880_init.o: rt2880_init.S \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/config.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/configs/rt2880.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/configs/../../autoconf.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/cmd_confdefs.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/version.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/../uboot_version.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/regdef.h \
+ include/sysc.h include/product.h include/mem_map.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/rt_mmap.h \
+ include/mem_map_1fc0.h include/chip_reg_map.h include/aux_reg_map.h \
+ include/product.h include/mem_map.h include/mac.inc \
+ include/chip_reg_map.h include/cpu.h
+memsetup.o: memsetup.S \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/config.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/configs/rt2880.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/configs/../../autoconf.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/cmd_confdefs.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/version.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/../uboot_version.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/regdef.h \
+ include/product.h include/mem_map.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/rt_mmap.h \
+ include/mem_map_1fc0.h include/chip_reg_map.h include/aux_reg_map.h \
+ include/mem_map.h include/mac.inc include/chip_reg_map.h
+rt2880.o: rt2880.c \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/common.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/config.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/configs/rt2880.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/configs/../../autoconf.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/cmd_confdefs.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/bitops.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/bitops.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/types.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/config.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/posix_types.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/stddef.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/posix_types.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/types.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/byteorder.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/byteorder/little_endian.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/byteorder/swab.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/byteorder/generic.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/sgidefs.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/system.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/ptrace.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/isadep.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/string.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/string.h \
+ /usr/local/src/connectedIO/AP102B_telit/staging_dir/toolchain-mipsel_24kec+dsp_gcc-4.8-linaro_musl-1.1.10/lib/gcc/mipsel-openwrt-linux-musl/4.8.3/include/stdarg.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/part.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/ide.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/flash.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/image.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/u-boot.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/global_data.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/regdef.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/command.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/addrspace.h
+serial.o: serial.c \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/common.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/config.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/configs/rt2880.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/configs/../../autoconf.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/cmd_confdefs.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/bitops.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/bitops.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/types.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/config.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/posix_types.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/stddef.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/posix_types.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/types.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/byteorder.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/byteorder/little_endian.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/byteorder/swab.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/byteorder/generic.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/sgidefs.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/system.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/ptrace.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/isadep.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/linux/string.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/string.h \
+ /usr/local/src/connectedIO/AP102B_telit/staging_dir/toolchain-mipsel_24kec+dsp_gcc-4.8-linaro_musl-1.1.10/lib/gcc/mipsel-openwrt-linux-musl/4.8.3/include/stdarg.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/part.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/ide.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/flash.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/image.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/u-boot.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/global_data.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/asm/regdef.h \
+ serial.h \
+ /usr/local/src/connectedIO/AP102B_telit/package/boot/uboot-connectedio-ap102b/include/rt_mmap.h
