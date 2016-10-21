@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Intended usage: Capturing Diagnostic Message (DM) logs from a wireless modem's DM port. The script
 # can be used as a standalone application (local logging), or as a "server" application (remote logging).
