@@ -1,6 +1,7 @@
 # This script handles the issue where wwan0 is not 
 # brought up after the modem resets with Telit modems. 
 # This also happens to the Sierra module, so handle reset.
+set -x
 
 h=$(cat /proc/sys/kernel/hostname)
 if [ "$h" == "AP102B" ]; then
@@ -30,10 +31,21 @@ if [ "$modem" == "MC7350" ]; then
 		touch /tmp/.lock_first_modem_check
 		exit 0;
 	fi
+	# Sierra Modem requires software reset at boot
+	if [ -f /tmp/.lock_sierra_issued_reset ]; then
+		track_enabled=$(uci get network.wwan0.conntrack)
+		# When connection tracking is disabled, do not attempt software reset.
+		[ "$track_enabled" == "0" ] && exit 0;
+	fi
 	if mwan3 interfaces | grep "interface wwan1 is online" ; then
 		[ -f /tmp/.lock_sierra_issued_reset ] && rm /tmp/.lock_sierra_issued_reset
 		exit 0;
 	else
+		sleep 2;
+		# Test again, b/c mwan3 can return error status
+		if mwan3 interfaces | grep "interface wwan1 is online" ; then
+			exit 0;
+		fi
 		touch /tmp/.lock_sierra_issued_reset
 		at.sh "at!reset"	
 		exit 0;

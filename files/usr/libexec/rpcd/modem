@@ -2,7 +2,7 @@
 
 case "$1" in
 	list)
-		echo '{ "connect": { "keep": true}, "disconnect" : {"keep": true }, "checkAuto" : {"keep": true }, "changeMode" : {"mode": "Auto" },  "getStatus" : {"keep": true }}'
+		echo '{ "connect": { "keep": true}, "disconnect" : {"keep": true }, "checkAuto" : {"keep": true }, "changeMode" : {"mode": "Auto" },  "getStatus" : {"keep": true }, "setWANTrafficPolicy": {"policy" : "wan_wan0_wan2"}, "setConnectionTracking": {"enabled" : "1"}}'
 	;;
 	call)
 		case "$2" in
@@ -68,6 +68,48 @@ case "$1" in
 				uci set modem.@modem[0].mode=$mode
 				uci commit
 				output="{\"stdout\":\"changeMode\"}"
+				echo $output
+			;;
+			setWANTrafficPolicy)
+				read input;
+				policy=$(echo $input | sed 's/^.*\"policy\"\:\"//g' | sed 's/ *\".*$//g')
+				uci set mwan3.default_rule.use_policy="$policy"
+				uci commit mwan3
+				if [ "$policy" == "wan_wan0_wan2" ]; then
+					uci set network.wan.defaultroute="1"
+					uci set network.wwan0.defaultroute="0"
+					uci set network.wwan1.defaultroute="0"
+					uci set network.wan.metric="1"
+					uci set network.wwan0.metric="2"
+					uci set network.wwan1.metric="3"
+					uci commit network
+				else
+					uci set network.wan.defaultroute="0"
+					uci set network.wwan0.defaultroute="1"
+					uci set network.wwan1.defaultroute="1"
+					uci set network.wan.metric="3"
+					uci set network.wwan0.metric="2"
+					uci set network.wwan1.metric="1"
+					uci commit network
+				fi;
+				mwan3 restart
+				output="{\"stdout\":\"$policy\"}"
+				echo $output
+			;;
+			setConnectionTracking)
+				read input;
+				enabled=$(echo $input | sed 's/^.*\"enabled\"\:\"//g' | sed 's/ *\".*$//g')
+				enabled=${enabled:-1}
+				uci set network.wan.conntrack="$enabled"
+				uci set network.wwan0.conntrack="$enabled"
+				uci set network.wwan1.conntrack="$enabled"
+				uci commit network
+				#if [ "$enabled" == "1" ]; then
+				#	mwan3 restart 
+				#else
+				#	mwan3 stop 
+				#fi;
+				output="{\"stdout\":\"0\"}"
 				echo $output
 			;;
 			getStatus)

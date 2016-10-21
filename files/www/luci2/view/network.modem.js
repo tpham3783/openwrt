@@ -21,8 +21,20 @@ L.ui.view.extend({
 		params: [ 'config' ],
 		expect: { '': { code: -1 } }
 	}),
-    /* On demand method */
-    getStatus: L.rpc.declare({
+	setWANTrafficPolicy: L.rpc.declare({
+		object: 'modem',
+		method: 'setWANTrafficPolicy',
+		params: [ 'policy' ],
+		expect: { '': { code: -1 } }
+	}),
+	setConnectionTracking: L.rpc.declare({
+		object: 'modem',
+		method: 'setConnectionTracking',
+		params: [ 'enabled' ],
+		expect: { '': { code: -1 } }
+	}),
+        /* On demand method */
+        getStatus: L.rpc.declare({
 		object: 'modem',
 		method: 'getStatus',
 		params: [ 'keep' ],
@@ -132,6 +144,19 @@ L.ui.view.extend({
             /* Select Prefered Network Indicator */
             document.getElementById(r.values.cfg0203f7.mode).checked = "checked";
         });
+
+	self.getInfo("mwan3").then(function(r) {
+            /* Update the static APNs & modem name */
+            self.use_policy = r.values.default_rule.use_policy;
+
+            /* Update the auto connect checkbox */
+            if (self.use_policy === "wan_wan0_wan2") {
+                document.getElementById("ethernet").checked = "checked";
+            } else {
+                document.getElementById("cellular").checked = "checked";
+            }
+
+        });
     },
     
 	execute: function() {
@@ -142,9 +167,9 @@ L.ui.view.extend({
         	self.apn = "Unknown";
         
 		L.network.load().then(function() {
-            /* Schedule page reload */
+                /* Schedule page reload */
 			self.repeat(self.renderContents, 5000);
-        });
+                });
 
 		$('#run').click(function() {
 			L.ui.loading(true);
@@ -173,10 +198,8 @@ L.ui.view.extend({
 		$('#autoBox').click(function() {
 			L.ui.loading(true);
 			self['setAuto'](true).then(function(rv) {
-
 				L.ui.loading(false);
 			});
-
 		});
 
 		$('#connect').click(function() {
@@ -218,6 +241,27 @@ L.ui.view.extend({
 			});
 		});
 
+ 		$('#ethernet').click(function() {
+			L.ui.loading(true);
+			self.setWANTrafficPolicy("wan_wan0_wan2");
+			L.ui.loading(false);
+                });
+
+ 		$('#cellular').click(function() {
+			L.ui.loading(true);
+			self.setWANTrafficPolicy("wan2_wan0_wan");
+			L.ui.loading(false);
+                });
+
+		$('#pingTest').click(function() {
+			L.ui.loading(true);
+			if (document.getElementById("pingTest").checked){
+				self.setConnectionTracking("1");
+			}else{
+				self.setConnectionTracking("0");
+			}
+			L.ui.loading(false);
+		});
 		/* Trigger request for modem's name and APN */
         	self.updateView();
 
