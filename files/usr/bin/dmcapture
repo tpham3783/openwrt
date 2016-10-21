@@ -1,0 +1,57 @@
+#!/bin/sh
+# Author: Toan Pham
+# Purpose: simplied method to capture debug logs for Sierra Wireless
+# Usage: dmcapture pham
+#        # the capture session will generate two files: dm.raw.system.txt, pham.system.txt
+#        # please send those files to sierra wireless when finish.
+#        # Please do not capture for too long because there is little space on the EMU
+#        # to store the log. 
+#
+#a       AT+CFUN=0
+#b.       Start logging with attached filter
+#c.       AT+CFUN=1
+#d.       AT!GSTATUS? and verify attach and registration
+#e.       Reproduce issue…
+#f.       Stop log.
+
+export PATH=/sdk:/sdk/dm:$PATH
+
+if [ ! -d /sdk/dm ] ; then
+   echo "no dm tool available, can not continue";
+   exit 1;
+fi;
+
+file=${1-dm.raw}
+system_status="ATI9 AT!GSTATUS? AT+COPS? AT+CREG? AT!SELRAT? AT!BAND?"
+echo "" > $file.system.txt
+for i in $system_status; do
+    {
+    echo "Output of AT command: $i";
+    echo "-------------------------------------------"
+    at.sh "$i" 
+    echo "" 
+    echo ""
+    } >> $file.system.txt
+done;
+
+at.sh "AT+CFUN=0"
+./dmcapture.sh  -l -d /dev/ttyUSB0 -f /sdk/dm/filters/MC7xxx_With-Low-Level-Debug.sqf  -o $file &
+pid=$!
+sleep 3;
+at.sh "AT+CFUN=1"
+at.sh "AT!GSTATUS"
+
+echo "Capturing data to $file"
+while [ 0 ]; do
+   read -p "Type stop to abort capture: " cmd
+   if [ "$cmd" = "stop" ]; then
+	echo "Stoping capture service";
+	killall dmcapture.sh &> /dev/null
+	kill -p $pid &> /dev/null
+	exit 0;
+   elif [ -z "$cmd" ]; then
+	ls -lah $file
+   else
+	eval $cmd
+   fi
+done;
