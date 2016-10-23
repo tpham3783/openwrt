@@ -1,8 +1,6 @@
 # This script handles the issue where wwan0 is not 
 # brought up after the modem resets with Telit modems. 
 # This also happens to the Sierra module, so handle reset.
-set -x
-
 h=$(cat /proc/sys/kernel/hostname)
 if [ "$h" == "AP102B" ]; then
 	# This happens because openwrt is still busy formating JFFS right after sys-upgrade
@@ -33,7 +31,7 @@ if [ "$modem" == "MC7350" ]; then
 	fi
 	# Sierra Modem requires software reset at boot
 	if [ -f /tmp/.lock_sierra_issued_reset ]; then
-		track_enabled=$(uci get network.wwan0.conntrack)
+		track_enabled=$(uci get mwan3.wwan0.enabled)
 		# When connection tracking is disabled, do not attempt software reset.
 		[ "$track_enabled" == "0" ] && exit 0;
 	fi
