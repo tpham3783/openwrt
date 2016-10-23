@@ -156,12 +156,12 @@ L.ui.view.extend({
                 document.getElementById("cellular").checked = "checked";
             }
         });
-   self.getInfo("network").then(function(r) {
+   	self.getInfo("mwan3").then(function(r) {
             /* Update the static APNs & modem name */
-            self.conntrack = r.values.wwan1.conntrack;
+            self.mwan3_enabled = r.values.wwan1.enabled;
 
             /* Update the auto connect checkbox */
-            if (self.conntrack === "1") {
+            if (self.mwan3_enabled === "1") {
 		$('#pingTest').attr('checked', true);
             } else {
 		$('#pingTest').attr('checked', false);
