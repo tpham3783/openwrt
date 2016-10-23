@@ -100,9 +100,9 @@ case "$1" in
 				read input;
 				enabled=$(echo $input | sed 's/^.*\"enabled\"\:\"//g' | sed 's/ *\".*$//g')
 				enabled=${enabled:-1}
-				uci set network.wan.conntrack="$enabled"
-				uci set network.wwan0.conntrack="$enabled"
-				uci set network.wwan1.conntrack="$enabled"
+				uci set mwan3.wan.enabled="$enabled"
+				uci set mwan3.wwan0.enabled="$enabled"
+				uci set mwan3.wwan1.enabled="$enabled"
 				uci commit network
 				#if [ "$enabled" == "1" ]; then
 				#	mwan3 restart 
