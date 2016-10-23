@@ -77,14 +77,14 @@ case "$1" in
 				uci commit mwan3
 				if [ "$policy" == "wan_wan0_wan2" ]; then
 					uci set network.wan.defaultroute="1"
-					uci set network.wwan0.defaultroute="0"
-					uci set network.wwan1.defaultroute="0"
+					uci del network.wwan0.defaultroute
+					uci del network.wwan1.defaultroute
 					uci set network.wan.metric="1"
 					uci set network.wwan0.metric="2"
 					uci set network.wwan1.metric="3"
 					uci commit network
 				else
-					uci set network.wan.defaultroute="0"
+					uci del network.wan.defaultroute
 					uci set network.wwan0.defaultroute="1"
 					uci set network.wwan1.defaultroute="1"
 					uci set network.wan.metric="3"
