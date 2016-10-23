@@ -103,7 +103,7 @@ case "$1" in
 				uci set mwan3.wan.enabled="$enabled"
 				uci set mwan3.wwan0.enabled="$enabled"
 				uci set mwan3.wwan1.enabled="$enabled"
-				uci commit network
+				uci commit mwan3 
 				#if [ "$enabled" == "1" ]; then
 				#	mwan3 restart 
 				#else
