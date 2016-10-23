@@ -155,8 +155,19 @@ L.ui.view.extend({
             } else {
                 document.getElementById("cellular").checked = "checked";
             }
-
         });
+   self.getInfo("network").then(function(r) {
+            /* Update the static APNs & modem name */
+            self.conntrack = r.values.wwan1.conntrack;
+
+            /* Update the auto connect checkbox */
+            if (self.conntrack === "1") {
+		$('#pingTest').attr('checked', true);
+            } else {
+		$('#pingTest').attr('checked', false);
+            }
+        });
+
     },
     
 	execute: function() {
