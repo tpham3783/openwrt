@@ -35,6 +35,17 @@ if [ "$modem" == "MC7350" ]; then
 		# When connection tracking is disabled, do not attempt software reset.
 		[ "$track_enabled" == "0" ] && exit 0;
 	fi
+
+	# Read APN from device and sync with current system's setting
+	res=$(at.sh "AT+CGDCONT?")
+	res=${res#*3,}
+        deviceAPN=$(echo $res | tr "," " " | awk '{print $2;}' | sed s/\"//g)
+	if [ ! -f /tmp/.apn_updated -a ! -z "$deviceAPN" ]; then
+		uci set modem.@modem[0].apn=$deviceAPN
+		uci commit modem
+		touch /tmp/.apn_updated
+	fi
+
 	if mwan3 interfaces | grep "interface wwan1 is online" ; then
 		[ -f /tmp/.lock_sierra_issued_reset ] && rm /tmp/.lock_sierra_issued_reset
 		exit 0;
