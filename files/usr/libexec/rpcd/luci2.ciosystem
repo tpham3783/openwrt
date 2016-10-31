@@ -6,7 +6,7 @@
 
 case "$1" in
 	list)
-		echo '{ "cio_upgrade": { "keep": true }, "show_firewall": { "keep": true }, "restart_firewall": { "keep": true }, "reset_counts": { "keep": true }, "get_user_firewall": {}, "set_user_firewall": { "file":"" }, "cio_clean_upgrade": { "keep": true} }'
+		echo '{ "cio_upgrade": { "keep": true }, "show_firewall": { "keep": true }, "restart_firewall": { "keep": true }, "reset_counts": { "keep": true }, "get_user_firewall": {}, "set_user_firewall": { "file":"" }, "cio_clean_upgrade": { "keep": true}, "shutdown": {} }'
 	;;
 	call)
 		case "$2" in
@@ -47,6 +47,10 @@ case "$1" in
 				sysupgrade -n -v /tmp/firmware.bin
 				echo '{ "msg1": "here do sysupgrade" }'
 			;;
+			shutdown)
+				shutdown -h now || halt -d 3 
+                                echo '{ "stdout": "rebooting system" }'
+                        ;;
 		esac
 	;;
 esac

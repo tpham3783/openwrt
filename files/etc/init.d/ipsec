@@ -17,7 +17,8 @@ STOP=10
 #ipsec.sonicwall.psk='123lan100'
 
 _init_ipsec_config(){
-	_leftsourceip=`uci get ipsec.sonicwall.leftsourceip`
+	# PS: Set leftsourceip to setup host-to-site vpn
+	#_leftsourceip=`uci get ipsec.sonicwall.leftsourceip`
 	_leftsubnet=`uci get ipsec.sonicwall.leftsubnet`
 	_leftid=`uci get ipsec.sonicwall.leftid`
 	_right=`uci get ipsec.sonicwall.right`
