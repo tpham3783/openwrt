@@ -75,6 +75,19 @@ L.ui.view.extend({
 		params: [ 'mode' ],
 		expect: { '': { code: -1 } }
 	}),
+	getPingIP: L.rpc.declare({
+		object: 'modem',
+		method: 'getPingIP',
+		expect: { '': { code: -1 } }
+	}),
+	setPingIP: L.rpc.declare({
+		object: 'modem',
+		method: 'setPingIP',
+		params: [ 'ip' ],
+		expect: { '': { code: -1 } }
+	}),
+    
+    
     
     
 	renderContents: function() {
@@ -163,10 +176,19 @@ L.ui.view.extend({
             /* Update the auto connect checkbox */
             if (self.mwan3_enabled === "1") {
 		$('#pingTest').attr('checked', true);
+		$('#pingaddress').prop('disabled', false);
             } else {
 		$('#pingTest').attr('checked', false);
+		$('#pingaddress').prop('disabled', true);
             }
+
+
         });
+
+	self.getPingIP().then(function(r) {
+		$('#pingaddress').val(r.ip);
+	});
+
 
     },
     
@@ -178,7 +200,7 @@ L.ui.view.extend({
         	self.apn = "Unknown";
         
 		L.network.load().then(function() {
-                /* Schedule page reload */
+                	/* Schedule page reload */
 			self.repeat(self.renderContents, 5000);
                 });
 
@@ -268,13 +290,21 @@ L.ui.view.extend({
 			L.ui.loading(true);
 			if (document.getElementById("pingTest").checked){
 				self.setConnectionTracking("1");
+				$('#pingaddress').prop('disabled', false);
 			}else{
 				self.setConnectionTracking("0");
+				$('#pingaddress').prop('disabled', true);
 			}
+			L.ui.loading(false);
+		});
+		$('#savePingIP').click(function() {
+			L.ui.loading(true);
+			self.setPingIP($('#pingaddress').val());
 			L.ui.loading(false);
 		});
 		/* Trigger request for modem's name and APN */
         	self.updateView();
+
 
 	}
 });

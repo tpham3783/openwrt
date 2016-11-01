@@ -2,7 +2,7 @@
 
 case "$1" in
 	list)
-		echo '{ "connect": { "keep": true}, "disconnect" : {"keep": true }, "checkAuto" : {"keep": true }, "changeMode" : {"mode": "Auto" },  "getStatus" : {"keep": true }, "setWANTrafficPolicy": {"policy" : "wan_wan0_wan2"}, "setConnectionTracking": {"enabled" : "1"}}'
+		echo '{ "connect": { "keep": true}, "disconnect" : {"keep": true }, "checkAuto" : {"keep": true }, "changeMode" : {"mode": "Auto" },  "getStatus" : {"keep": true }, "setWANTrafficPolicy": {"policy" : "wan_wan0_wan2"}, "setConnectionTracking": {"enabled" : "1"}, "getPingIP": {"keep":true},  "setPingIP": {"ip":""}}'
 	;;
 	call)
 		case "$2" in
@@ -109,6 +109,23 @@ case "$1" in
 				#else
 				#	mwan3 stop 
 				#fi;
+				output="{\"stdout\":\"0\"}"
+				echo $output
+			;;
+			getPingIP)
+				ip=$(uci get mwan3.wwan1.track_ip);
+				output="{\"ip\":\"$ip\"}"
+				echo $output
+			;;
+			setPingIP)
+				read input;
+				ip=$(echo $input | sed 's/^.*\"ip\"\:\"//g' | sed 's/ *\".*$//g')
+				ip=${ip:-8.8.8.8}
+				uci delete mwan3.wwan1.track_ip;
+				uci delete mwan3.wwan0.track_ip;
+				uci add_list mwan3.wwan1.track_ip="$ip";
+				uci add_list mwan3.wwan0.track_ip="$ip";
+				uci commit
 				output="{\"stdout\":\"0\"}"
 				echo $output
 			;;
