@@ -303,7 +303,6 @@ L.ui.view.extend({
 							var ddd = L.ui.dialog(L.tr('Password Change Confirmation'), [
                                                         $('<p />').text(L.tr('Your password has been changed successfully!'))
                                                 	], { style: 'close' });
-                                                        //alert("Password saved successfully");
                                                 self.saved_password = true;
                                                 return self.setPassword('root', v1);
 					}
