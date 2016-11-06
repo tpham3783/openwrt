@@ -35,7 +35,7 @@ for i in $system_status; do
 done;
 
 at.sh "AT+CFUN=0"
-./dmcapture.sh  -l -d /dev/ttyUSB0 -f /sdk/dm/filters/MC7xxx_With-Low-Level-Debug.sqf  -o $file &
+./dmcapture.sh  -l -d /dev/ttyUSB0 -f /sdk/dm/filters/MC7xxx_With-Low-Level-Debug.sqf  -o $file &> /dev/null &
 pid=$!
 sleep 3;
 at.sh "AT+CFUN=1"

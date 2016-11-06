@@ -153,17 +153,69 @@ L.ui.view.extend({
 			}
 		});
 	},
+	progress: function(timeleft, timetotal, $element) {
+		var self = this;
+		$element.show();
+		$element.focus();
+		$(document.body).css( {"cursor": "wait"} );
+		$("body").css( {"cursor": "wait"} );
+		var progressAction = "";
+		if(timeleft>595){
+			progressAction = "Starting FW update!";	
+		}else if(timeleft>590){
+			progressAction = "Preparing system: Shutting down services.";	
+		}else if(timeleft>586){
+			progressAction = "Preparing system: Shutting down applications.";	
+		}else if(timeleft>530){
+			progressAction = "Writing Firmware Image";	
+		}else if(timeleft>510){
+			progressAction = "Preparing to reboot system";	
+		}else if(timeleft>100){
+			progressAction = "Formating filesytem";	
+		}else{
+			progressAction = "";
+		}
+    		var progressBarWidth = timeleft * 600 / timetotal;
+    		$element
+		.css('width', progressBarWidth+'px')
+        	.html(progressAction);
+
+		$('#progressText').html('Please wait, ' + timeleft + ' seconds left.');
+		if(timeleft<=0){
+			$(document.body).css( {"cursor": "default"} );
+			$("body").css( {"cursor": "default"} );
+			$('#progressText').html('<b>Firmware update completed!  You can now reload browser to the default webpage.</b>');
+		}
+    		if(timeleft > 0) {
+        		setTimeout(function() {
+            			self.progress(timeleft - 1, timetotal, $element);
+        		}, 1000);
+    		}
+	},
 
 	handleUpgrading: function() {
-		 L.ui.dialog(
+		 var self = this;
+		 L.session.stopHeartbeat();
+		 var x = L.ui.dialog(
                       L.tr('Upgrading firmware'), [
-                      $('<p />').text(L.tr('Please wait while firmware is upgrading..'))
+                      $('<p />').text(L.tr('Please wait while firmware is upgrading.  This process takes about 10 minutes, please wait...')),
+			$('<div name="upgradeProgressBar" id="upgradeProgessBar" />')
+                              .addClass('progress-bar')
+                              .css('width', '80%')
+                              .css('height', '15px'),
+			$('<br>'),
+	   		$('<div name="progressText" id="progressText" />')
                         ], {
-                            style: 'close',
+                            style: 'wait',
+			    wide: true,
+                            //style: 'close',
                             close: function() {
-					L.ui.dialog(false);
+					L.ui.dialog(true);
+					//L.ui.dialog(false);
 				}}
                             );
+
+		self.progress(600, 600, $('#upgradeProgessBar'));
 
 	},
 

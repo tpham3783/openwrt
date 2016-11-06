@@ -4,7 +4,8 @@
 
 / {
 	compatible = "ralink,mt7620a-eval-board", "ralink,mt7620a-soc";
-        model = "Ralink MT7620a + MT7530 evaluation board";
+        //model = "Ralink MT7620a + MT7530 evaluation board";
+        model = "Connected IO EMU Router";
 
 	palmbus@10000000 {
                 gpio0: gpio@600 {

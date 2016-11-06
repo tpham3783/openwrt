@@ -294,10 +294,19 @@ L.ui.view.extend({
 				optional:    true,
 				datatype:    function(v) {
 					var v1 = p1.formvalue('__password');
-					if (v1 && v1.length && v != v1)
-						return L.tr('Passwords must match!');
-					if (v1 && v1.length > 0 && v == v1)
-                                                self.setPassword('root', v1);
+					if (v1 && v1.length && v != v1){
+                                                self.saved_password = false;
+                                                return L.tr('Passwords must match!');
+                                        }
+					if (v1 && v1.length > 0 && v == v1){
+						if (self.saved_password!=true)
+							var ddd = L.ui.dialog(L.tr('Password Change Confirmation'), [
+                                                        $('<p />').text(L.tr('Your password has been changed successfully!'))
+                                                	], { style: 'close' });
+                                                        //alert("Password saved successfully");
+                                                self.saved_password = true;
+                                                return self.setPassword('root', v1);
+					}
 					return true;
 				}
 			});

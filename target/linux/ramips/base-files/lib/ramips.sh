@@ -265,6 +265,9 @@ ramips_board_detect() {
 	*"Ralink MT7620a + MT7530 evaluation board")
                 name="mt7620a_mt7530"
                 ;;
+	*"Connected IO EMU Router")
+                name="mt7620a_mt7530"
+                ;;
 	*"Ralink MT7620a + MT7610e evaluation board")
 		name="mt7620a_mt7610e"
 		;;

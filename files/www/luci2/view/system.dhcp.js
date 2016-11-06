@@ -22,7 +22,7 @@ L.ui.view.extend({
                         datatype:   'range(1, 254)' 
                 });
 	 	s2.option(L.cbi.InputValue, 'leasetime', {
-                        caption:     L.tr('Least Time: 12h or 30m'),
+                        caption:     L.tr('Lease Time: 12h or 30m'),
                         placeholder: '',
                 });
 
